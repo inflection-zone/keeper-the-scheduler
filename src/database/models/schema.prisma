@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Scheduler {
+  id            String           @id @default(uuid())
+  SchedulerName String
+  SchedulerType SchedulerType
+  Frequency     Int
+  Minutes       Int?
+  Hours         Int?
+  DayOfMonth    Int?
+  Month         Int?
+  DayOfWeek     Int?
+  StartDate     DateTime
+  EndDate       DateTime
+  HookUri       String
+  CronRegEx     String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  deletedAt     Boolean          @default(false)
+  Tasks         ScheduledTasks[]
+}
+
+model ScheduledTasks {
+  id          String    @id @default(uuid())
+  TriggerTime DateTime
+  HookUri     String
+  Retries     Int
+  Status      Status
+  Scheduler   Scheduler @relation(fields: [schedulerId], references: [id])
+  schedulerId String
+}
+
+enum Status {
+  PENDING
+  COMPLETED
+  FAILED
+  QUEUED
+}
+
+enum SchedulerType {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
