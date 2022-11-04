@@ -16,9 +16,9 @@ export class SchedulerValidator {
                 DayOfMonth    : joi.number().integer().min(1).max(31).optional(),
                 Month         : joi.number().integer().min(1).max(12).optional(),
                 DayOfWeek     : joi.number().integer().min(0).max(7).optional(),
-                StartDate     : joi.date().min(new Date()).required(),
-                EndDate       : joi.date().min(new Date()).required(),
-                HookUri       : joi.string().max(64).required(),
+                StartDate     : joi.date().min(new Date()).iso().required(),
+                EndDate       : joi.date().min(new Date()).iso().greater(joi.ref('StartDate')).required(),
+                HookUri       : joi.string().uri().required(),
                 CronRegEx     : joi.string().max(64).optional(),
 
             });
