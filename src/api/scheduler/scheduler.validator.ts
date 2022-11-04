@@ -9,7 +9,7 @@ export class SchedulerValidator {
         try {
             const schema = joi.object({
                 SchedulerName : joi.string().max(64).required(),
-                SchedulerType : joi.string().max(64).required(),
+                SchedulerType : joi.string().valid('HOURLY', 'DAILY','WEEKLY','MONTHLY','YEARLY'),
                 Frequency     : joi.number().integer().min(1).max(10).optional(),
                 Minutes       : joi.number().integer().min(0).max(59).optional(),
                 Hours         : joi.number().integer().min(0).max(23).optional(),

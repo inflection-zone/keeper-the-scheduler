@@ -147,7 +147,7 @@ export class SchedulerControllerDelegate {
     getCreateModel = (requestBody): Prisma.SchedulerCreateInput => {
         return {
             SchedulerName : requestBody.SchedulerName ? requestBody.SchedulerName : null,
-            SchedulerType : requestBody.ScheduledType ? requestBody.SchedulerType : 'DAILY',
+            SchedulerType : requestBody.SchedulerType ? requestBody.SchedulerType : 'DAILY',
             Frequency     : requestBody.Frequenct ? requestBody.Frequenct : 1,
             Minutes       : requestBody.Minutes ? requestBody.Minutes : null,
             Hours         : requestBody.Hours ? requestBody.Hours : null,
@@ -169,6 +169,7 @@ export class SchedulerControllerDelegate {
         return {
             id            : record.id,
             SchedulerName : record.SchedulerName,
+            SchedulerType : record.SchedulerType,
             Frequency     : record.Frequency,
             Minutes       : record.Minutes,
             Hours         : record.Hours,
