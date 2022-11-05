@@ -61,16 +61,16 @@ export class SchedulerController extends BaseController {
     //     }
     // }
 
-    // update = async (request: express.Request, response: express.Response): Promise < void > => {
-    //     try {
-    //         //await this.authorize('Participant.Update', request, response);
-    //         const updatedRecord = await this._delegate.update(parseInt(request.params.id), request.body);
-    //         const message = 'Faculty updated successfully!';
-    //         ResponseHandler.success(request, response, message, 200, updatedRecord);
-    //     } catch (error) {
-    //         ResponseHandler.handleError(request, response, error);
-    //     }
-    // }
+    update = async (request: express.Request, response: express.Response): Promise < void > => {
+        try {
+            //await this.authorize('Participant.Update', request, response);
+            const updatedRecord = await this._delegate.update(request.params.id, request.body);
+            const message = 'Scheduler updated successfully!';
+            ResponseHandler.success(request, response, message, 200, updatedRecord);
+        } catch (error) {
+            ResponseHandler.handleError(request, response, error);
+        }
+    }
 
     // delete = async (request: express.Request, response: express.Response): Promise < void > => {
     //     try {

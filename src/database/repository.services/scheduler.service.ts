@@ -85,23 +85,24 @@ export class SchedulerService {
     //     }
     // }
 
-    // update = async (id, updateModel) => {
-    //     try {
-    //         if (Object.keys(updateModel).length > 0) {
-    //             var res = await this.Client.update(updateModel, {
-    //                 where : {
-    //                     id : id
-    //                 }
-    //             });
-    //             if (res.length !== 1) {
-    //                 throw new Error('Unable to update client!');
-    //             }
-    //         }
-    //         return await this.getById(id);
-    //     } catch (error) {
-    //         ErrorHandler.throwDbAccessError('DB Error: Unable to update client!', error);
-    //     }
-    // }
+    update = async (id, updateModel) => {
+        try {
+            if (Object.keys(updateModel).length > 0) {
+                var res = await this.prisma.scheduler.update({
+                    data  : updateModel,
+                    where : {
+                        id : id,
+                    }
+                });
+                if (res == null) {
+                    throw new Error('Unable to update client!');
+                }
+            }
+            return await this.getById(id);
+        } catch (error) {
+            ErrorHandler.throwDbAccessError('DB Error: Unable to update scheduler!', error);
+        }
+    }
 
     // delete = async (id) => {
     //     try {

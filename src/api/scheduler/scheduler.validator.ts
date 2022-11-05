@@ -62,25 +62,18 @@ export class SchedulerValidator {
     static validateUpdateRequest = async (requestBody) => {
         try {
             const schema = joi.object({
-
-                Id         : joi.number().integer().optional(),
-                firstName  : joi.string().max(64).optional(),
-                lastName   : joi.string().max(64).optional(),
-                department : joi.string().max(64).optional(),
-                subjectsId : joi.number().integer().optional()
-                // RoleId: joi.number().integer().optional(),
-                // Prefix: joi.string().max(16).optional(),
-                // FirstName: joi.string().max(64).optional(),
-                // LastName: joi.string().max(64).optional(),
-                // CountryCode: joi.string().max(10).optional(),
-                // Phone: joi.string().max(16).min(6).optional(),
-                // Email: joi.string().max(256).optional(),
-                // BiocubeId: joi.string().max(32).optional(),
-                // Gender: joi.string().valid('Male', 'Female', 'Other').optional(),
-                // Password: joi.string().max(512).optional(),
-                // State: joi.string().max(64).optional(),
-                // Country: joi.string().max(64).optional(),
-                // Address: joi.string().max(256).optional(),
+                SchedulerName : joi.string().max(64).required(),
+                SchedulerType : joi.string().valid('HOURLY', 'DAILY','WEEKLY','MONTHLY','YEARLY'),
+                Frequency     : joi.number().integer().min(1).max(10).optional(),
+                Minutes       : joi.number().integer().min(0).max(59).optional(),
+                Hours         : joi.number().integer().min(0).max(23).optional(),
+                DayOfMonth    : joi.number().integer().min(1).max(31).optional(),
+                Month         : joi.number().integer().min(1).max(12).optional(),
+                DayOfWeek     : joi.number().integer().min(0).max(7).optional(),
+                StartDate     : joi.date().min(new Date()).iso().required(),
+                EndDate       : joi.date().min(new Date()).iso().greater(joi.ref('StartDate')).required(),
+                HookUri       : joi.string().uri().required(),
+                CronRegEx     : joi.string().max(64).optional(),
             });
             return await schema.validateAsync(requestBody);
         } catch (error) {

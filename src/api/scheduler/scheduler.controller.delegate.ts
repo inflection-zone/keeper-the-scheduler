@@ -2,7 +2,7 @@ import { SchedulerService } from "../../database/repository.services/scheduler.s
 import {
     ErrorHandler,
 } from '../../common/error.handler';
-// import { Helper } from '../../common/helper';
+import { Helper } from '../../common/helper';
 import { ApiError } from '../../common/api.error';
 import { SchedulerValidator as validator } from './scheduler.validator';
 // import { Logger } from '../../common/logger';
@@ -61,32 +61,19 @@ export class SchedulerControllerDelegate {
     //     return searchResults;
     // }
 
-    // update = async (id: number, requestBody: any) => {
-    //     await validator.validateUpdateRequest(requestBody);
-    //     const record = await this._service.prisma.facultyInfo.findUnique({
-    //         where : {
-    //             id : id,
-    //         }
-    //     });
-    //     if (record === null) {
-    //         ErrorHandler.throwNotFoundError('Faculty with id ' + id.toString() + ' cannot be found!');
-    //     }
-    //     const updateModel: FacultyUpdateModel = this.getUpdateModel(requestBody);
-    //     const updated = await this._service.prisma.facultyInfo.update({
-    //         data : {
-    //             firstName  : updateModel.firstName,
-    //             lastName   : updateModel.lastName,
-    //             department : updateModel.department,
-    //         },
-    //         where : {
-    //             id : id
-    //         }
-    //     });
-    //     if (updated == null) {
-    //         throw new ApiError('Unable to update client!', 400);
-    //     }
-    //     return this.getEnrichedDto(updated);
-    // }
+    update = async (id: uuid, requestBody: any) => {
+        await validator.validateUpdateRequest(requestBody);
+        const record =  await this._service.getById(id);
+        if (record === null) {
+            ErrorHandler.throwNotFoundError('Scheduler with id ' + id.toString() + ' cannot be found!');
+        }
+        const updateModel: Prisma.SchedulerUpdateInput = this.getUpdateModel(requestBody);
+        const updated = await this._service.update(id, updateModel);
+        if (updated == null) {
+            throw new ApiError('Unable to update Schedule!', 400);
+        }
+        return this.getEnrichedDto(updated);
+    }
 
     // delete = async (id: number) => {
     //     const record = await this._service.prisma.facultyInfo.findUnique({
@@ -127,23 +114,50 @@ export class SchedulerControllerDelegate {
     //     return filters;
     // }
 
-    // getUpdateModel = (requestBody): FacultyUpdateModel => {
+    getUpdateModel = (requestBody): Prisma.SchedulerUpdateInput => {
 
-    //     // eslint-disable-next-line prefer-const
-    //     let updateModel: FacultyUpdateModel = {};
+        // eslint-disable-next-line prefer-const
+        let updateModel: Prisma.SchedulerUpdateInput = {};
 
-    //     if (Helper.hasProperty(requestBody, 'firstName')) {
-    //         updateModel.firstName = requestBody.firstName;
-    //     }
-    //     if (Helper.hasProperty(requestBody, 'lastName')) {
-    //         updateModel.lastName = requestBody.lastName;
-    //     }
-    //     if (Helper.hasProperty(requestBody, 'department')) {
-    //         updateModel.department = requestBody.department;
-    //     }
-    //     //Logger.instance().log(updateModel.firstName + " " + updateModel.lastName + " " + updateModel.branchName);
-    //     return updateModel;
-    // }
+        if (Helper.hasProperty(requestBody, 'SchedulerName')) {
+            updateModel.SchedulerName = requestBody.SchedulerName;
+        }
+        if (Helper.hasProperty(requestBody, 'SchedulerType')) {
+            updateModel.SchedulerType = requestBody.SchedulerType;
+        }
+        if (Helper.hasProperty(requestBody, 'Frequency')) {
+            updateModel.Frequency = requestBody.Frequency;
+        }
+        if (Helper.hasProperty(requestBody, 'Minutes')) {
+            updateModel.Minutes = requestBody.Minutes;
+        }
+        if (Helper.hasProperty(requestBody, 'Hours')) {
+            updateModel.Hours = requestBody.Hours;
+        }
+        if (Helper.hasProperty(requestBody, 'DayOfMonth')) {
+            updateModel.DayOfMonth = requestBody.DayOfMonth;
+        }
+        if (Helper.hasProperty(requestBody, 'Month')) {
+            updateModel.Month = requestBody.Month;
+        }
+        if (Helper.hasProperty(requestBody, 'DayOfWeek')) {
+            updateModel.DayOfWeek = requestBody.DayOfWeek;
+        }
+        if (Helper.hasProperty(requestBody, 'StartDate')) {
+            updateModel.StartDate = requestBody.StartDate;
+        }
+        if (Helper.hasProperty(requestBody, 'EndDate')) {
+            updateModel.EndDate = requestBody.EndDate;
+        }
+        if (Helper.hasProperty(requestBody, 'HookUri')) {
+            updateModel.HookUri = requestBody.HookUri;
+        }
+        if (Helper.hasProperty(requestBody, 'CronRegEx')) {
+            updateModel.CronRegEx = requestBody.CronRegEx;
+        }
+        
+        return updateModel;
+    }
 
     getCreateModel = (requestBody): Prisma.SchedulerCreateInput => {
         return {
