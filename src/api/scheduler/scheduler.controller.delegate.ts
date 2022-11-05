@@ -147,6 +147,15 @@ export class SchedulerControllerDelegate {
         if (Helper.hasProperty(requestBody, 'CronRegEx')) {
             updateModel.CronRegEx = requestBody.CronRegEx;
         }
+        if (Helper.hasProperty(requestBody, 'createdAt')) {
+            updateModel.createdAt = requestBody.createdAt;
+        }
+        if (Helper.hasProperty(requestBody, 'updatedAt')) {
+            updateModel.updatedAt = requestBody.updatedAt;
+        }
+        if (Helper.hasProperty(requestBody, 'deletedAt')) {
+            updateModel.deletedAt = requestBody.deletedAt;
+        }
         
         return updateModel;
     }
@@ -186,7 +195,10 @@ export class SchedulerControllerDelegate {
             StartDate     : record.StartDate,
             EndDate       : record.EndDate,
             HookUri       : record.HookUri,
-            CronRegEx     : record.CronRegEx
+            CronRegEx     : record.CronRegEx,
+            createdAt     : record.createdAt,
+            updatedAt     : record.updatedAt,
+            deletedAt     : record.deletedAt
 
         };
     };

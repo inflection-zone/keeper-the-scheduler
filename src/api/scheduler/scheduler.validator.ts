@@ -59,7 +59,8 @@ export class SchedulerValidator {
     //     }
     // };
 
-    static validateUpdateRequest = async (requestBody) => {
+    static validateUpdateRequest =
+    async (requestBody) => {
         try {
             const schema = joi.object({
                 SchedulerName : joi.string().max(64).required(),
@@ -74,6 +75,7 @@ export class SchedulerValidator {
                 EndDate       : joi.date().min(new Date()).iso().greater(joi.ref('StartDate')).required(),
                 HookUri       : joi.string().uri().required(),
                 CronRegEx     : joi.string().max(64).optional(),
+                deletedAt     : joi.boolean().optional()
             });
             return await schema.validateAsync(requestBody);
         } catch (error) {
