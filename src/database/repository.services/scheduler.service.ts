@@ -32,18 +32,18 @@ export class SchedulerService {
         }
     }
 
-    // getById = async (id) => {
-    //     try {
-    //         const record = await this.prisma.studentInfo.findUnique({
-    //             where : {
-    //                 id : id
-    //             },
-    //         });
-    //         return record;
-    //     } catch (error) {
-    //         ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve client!', error);
-    //     }
-    // }
+    getById = async (id) => {
+        try {
+            const record = await this.prisma.scheduler.findUnique({
+                where : {
+                    id : id
+                },
+            });
+            return record;
+        } catch (error) {
+            ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve scheduler!', error);
+        }
+    }
 
     // exists = async (id): Promise < boolean > => {
     //     try {

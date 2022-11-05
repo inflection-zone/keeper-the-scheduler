@@ -1,13 +1,14 @@
 import { SchedulerService } from "../../database/repository.services/scheduler.service";
-// import {
-//     ErrorHandler,
-// } from '../../common/error.handler';
+import {
+    ErrorHandler,
+} from '../../common/error.handler';
 // import { Helper } from '../../common/helper';
 import { ApiError } from '../../common/api.error';
 import { SchedulerValidator as validator } from './scheduler.validator';
 // import { Logger } from '../../common/logger';
 // import { Prisma } from "@prisma/client";
 import { Prisma } from '@prisma/client';
+import { uuid } from '../../domain.types/miscellaneous/system.types';
 ///////////////////////////////////////////////////////////////////////////////////////
 
 export class SchedulerControllerDelegate {
@@ -43,13 +44,13 @@ export class SchedulerControllerDelegate {
     //     return record;
     // };
 
-    // getById = async (id: uuid) => {
-    //     const record = await this._service.getById(id);
-    //     if (record === null) {
-    //         ErrorHandler.throwNotFoundError('Client with id ' + id.toString() + ' cannot be found!');
-    //     }
-    //     return this.getEnrichedDto(record);
-    // }
+    getById = async (id: uuid) => {
+        const record = await this._service.getById(id);
+        if (record === null) {
+            ErrorHandler.throwNotFoundError('Scheduler with id ' + id.toString() + ' cannot be found!');
+        }
+        return this.getEnrichedDto(record);
+    }
 
     // search = async (query: any) => {
     //     await validator.validateSearchRequest(query);
