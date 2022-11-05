@@ -5,6 +5,7 @@ import {
 //     SchedulerCreateModel
 // } from "../../domain.types/scheduler.domain.type";
 import { PrismaClient, Prisma } from '@prisma/client';
+import { uuid } from '../../domain.types/miscellaneous/system.types';
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 export class SchedulerService {
@@ -85,7 +86,7 @@ export class SchedulerService {
     //     }
     // }
 
-    update = async (id, updateModel) => {
+    update = async (id:uuid, updateModel) => {
         try {
             if (Object.keys(updateModel).length > 0) {
                 var res = await this.prisma.scheduler.update({
@@ -104,18 +105,18 @@ export class SchedulerService {
         }
     }
 
-    // delete = async (id) => {
-    //     try {
-    //         var result = await this.Client.destroy({
-    //             where : {
-    //                 id : id
-    //             }
-    //         });
-    //         return result === 1;
-    //     } catch (error) {
-    //         ErrorHandler.throwDbAccessError('DB Error: Unable to delete client!', error);
-    //     }
-    // }
+    delete = async (id:uuid) => {
+        try {
+            var result = await this.prisma.scheduler.delete({
+                where : {
+                    id : id
+                }
+            });
+            return result;
+        } catch (error) {
+            ErrorHandler.throwDbAccessError('DB Error: Unable to delete schedule!', error);
+        }
+    }
 
     // //#endregion
 

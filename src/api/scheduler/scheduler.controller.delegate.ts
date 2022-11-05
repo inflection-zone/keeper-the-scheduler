@@ -75,24 +75,16 @@ export class SchedulerControllerDelegate {
         return this.getEnrichedDto(updated);
     }
 
-    // delete = async (id: number) => {
-    //     const record = await this._service.prisma.facultyInfo.findUnique({
-    //         where : {
-    //             id : id,
-    //         }
-    //     });
-    //     if (record == null) {
-    //         ErrorHandler.throwNotFoundError('Faculty with id ' + id.toString() + ' cannot be found!');
-    //     }
-    //     const facultyDeleted = await this._service.prisma.facultyInfo.delete({
-    //         where : {
-    //             id : id,
-    //         }
-    //     });
-    //     return {
-    //         Deleted : facultyDeleted
-    //     };
-    // }
+    delete = async (id: uuid) => {
+        const record = await this._service.getById(id);
+        if (record == null) {
+            ErrorHandler.throwNotFoundError('Scheduler with id ' + id.toString() + ' cannot be found!');
+        }
+        const deletedSchedule = await this._service.delete(id);
+        return {
+            Deleted : deletedSchedule
+        };
+    }
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -72,15 +72,15 @@ export class SchedulerController extends BaseController {
         }
     }
 
-    // delete = async (request: express.Request, response: express.Response): Promise < void > => {
-    //     try {
-    //         //await this.authorize('Participant.Delete', request, response);
-    //         const result = await this._delegate.delete(parseInt(request.params.id));
-    //         const message = 'Faculty deleted successfully!';
-    //         ResponseHandler.success(request, response, message, 200, result);
-    //     } catch (error) {
-    //         ResponseHandler.handleError(request, response, error);
-    //     }
-    // };
+    delete = async (request: express.Request, response: express.Response): Promise < void > => {
+        try {
+            //await this.authorize('Participant.Delete', request, response);
+            const result = await this._delegate.delete(request.params.id);
+            const message = 'Scheduler deleted successfully!';
+            ResponseHandler.success(request, response, message, 200, result);
+        } catch (error) {
+            ResponseHandler.handleError(request, response, error);
+        }
+    };
 
 }
