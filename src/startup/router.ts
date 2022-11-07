@@ -43,7 +43,7 @@ import { Logger } from "../common/logger";
 // import { register as registerStudentRoutes } from "../api/student/student.routes";
 // import { register as registerFacultyRoutes } from "../api/faculty/faculty.routes";
 // import { register as registerAcademicRoutes } from "../api/academic/academic.routes";
-import { register as registerSchedulerRoutes } from "../api/scheduler/scheduler.routes";
+import { register as registerScheduleRoutes } from "../api/schedule/schedule.routes";
 ////////////////////////////////////////////////////////////////////////////////////
 
 export class Router {
@@ -61,10 +61,10 @@ export class Router {
                 //Handling the base route
                 this._app.get('/api/v1/', (req, res) => {
                     res.send({
-                        message : `Scheduler Service API [Version ${process.env.API_VERSION}]`,
+                        message : `Schedule Service API [Version ${process.env.API_VERSION}]`,
                     });
                 });
-                registerSchedulerRoutes(this._app);
+                registerScheduleRoutes(this._app);
                 // registerFacultyRoutes(this._app);
                 // registerAcademicRoutes(this._app);
                 // registerSubjectRoutes(this._app);

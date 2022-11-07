@@ -1,19 +1,19 @@
 import express from 'express';
 import { ResponseHandler } from '../../common/response.handler';
-import { SchedulerControllerDelegate } from './scheduler.controller.delegate';
+import { ScheduleControllerDelegate } from './schedule.controller.delegate';
 import { BaseController } from '../base.controller';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-export class SchedulerController extends BaseController {
+export class ScheduleController extends BaseController {
     
     //#region member variables and constructors
 
-    _delegate: SchedulerControllerDelegate = null;
+    _delegate: ScheduleControllerDelegate = null;
 
     constructor() {
         super();
-        this._delegate = new SchedulerControllerDelegate();
+        this._delegate = new ScheduleControllerDelegate();
     }
 
     //#endregion
@@ -21,7 +21,7 @@ export class SchedulerController extends BaseController {
     create = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
             const record = await this._delegate.create(request.body);
-            const message = 'Scheduler added successfully!';
+            const message = 'Schedule added successfully!';
             ResponseHandler.success(request, response, message, 201, record);
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
@@ -43,7 +43,7 @@ export class SchedulerController extends BaseController {
         try {
             //await this.authorize('Participant.GetById', request, response);
             const record = await this._delegate.getById(request.params.id);
-            const message = 'Scheduler retrieved successfully!';
+            const message = 'Schedule retrieved successfully!';
             ResponseHandler.success(request, response, message, 200, record);
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
@@ -65,7 +65,7 @@ export class SchedulerController extends BaseController {
         try {
             //await this.authorize('Participant.Update', request, response);
             const updatedRecord = await this._delegate.update(request.params.id, request.body);
-            const message = 'Scheduler updated successfully!';
+            const message = 'Schedule updated successfully!';
             ResponseHandler.success(request, response, message, 200, updatedRecord);
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
@@ -76,7 +76,7 @@ export class SchedulerController extends BaseController {
         try {
             //await this.authorize('Participant.Delete', request, response);
             const result = await this._delegate.delete(request.params.id);
-            const message = 'Scheduler deleted successfully!';
+            const message = 'Schedule deleted successfully!';
             ResponseHandler.success(request, response, message, 200, result);
         } catch (error) {
             ResponseHandler.handleError(request, response, error);

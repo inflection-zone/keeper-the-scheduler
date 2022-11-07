@@ -8,7 +8,7 @@ import { PrismaClient, Prisma } from '@prisma/client';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-export class SchedulerService {
+export class ScheduleService {
 
     //#region Models
 
@@ -18,31 +18,31 @@ export class SchedulerService {
 
    //#region Publics
 
-    create = async (createModel: Prisma.SchedulerCreateInput) => {
+    create = async (createModel: Prisma.ScheduleCreateInput) => {
         try {
-            var record = await this.prisma.scheduler.create({
+            var record = await this.prisma.schedule.create({
                 data : createModel
             });
-            return await this.prisma.scheduler.findUnique({
+            return await this.prisma.schedule.findUnique({
                 where : {
                     id : record.id
                 }
             });
         } catch (error) {
-            ErrorHandler.throwDbAccessError('DB Error: Unable to create schduler!', error);
+            ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
         }
     }
 
     getById = async (id) => {
         try {
-            const record = await this.prisma.scheduler.findUnique({
+            const record = await this.prisma.schedule.findUnique({
                 where : {
                     id : id
                 },
             });
             return record;
         } catch (error) {
-            ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve scheduler!', error);
+            ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve schedule!', error);
         }
     }
 
@@ -89,25 +89,25 @@ export class SchedulerService {
     update = async (id:uuid, updateModel) => {
         try {
             if (Object.keys(updateModel).length > 0) {
-                var res = await this.prisma.scheduler.update({
+                var res = await this.prisma.schedule.update({
                     data  : updateModel,
                     where : {
                         id : id,
                     }
                 });
                 if (res == null) {
-                    throw new Error('Unable to update client!');
+                    throw new Error('Unable to update schedule!');
                 }
             }
             return await this.getById(id);
         } catch (error) {
-            ErrorHandler.throwDbAccessError('DB Error: Unable to update scheduler!', error);
+            ErrorHandler.throwDbAccessError('DB Error: Unable to update schedule!', error);
         }
     }
 
     delete = async (id:uuid) => {
         try {
-            var result = await this.prisma.scheduler.delete({
+            var result = await this.prisma.schedule.delete({
                 where : {
                     id : id
                 }

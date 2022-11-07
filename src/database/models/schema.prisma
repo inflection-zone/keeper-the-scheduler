@@ -10,11 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Scheduler {
+model Schedule {
   id            String           @id @default(uuid())
-  SchedulerName String
-  SchedulerType SchedulerType
-  Frequency     Int
+  ScheduleName String
+  ScheduleType ScheduleType
+  Frequency     Int?
   Minutes       Int?
   Hours         Int?
   DayOfMonth    Int?
@@ -24,20 +24,20 @@ model Scheduler {
   EndDate       DateTime
   HookUri       String
   CronRegEx     String?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  deletedAt     Boolean          @default(false)
-  Tasks         ScheduledTasks[]
+  CreatedAt     DateTime         @default(now())
+  UpdatedAt     DateTime         @updatedAt
+  DeletedAt     DateTime?         
+  Tasks         ScheduleTask[]
 }
 
-model ScheduledTasks {
+model ScheduleTask {
   id          String    @id @default(uuid())
   TriggerTime DateTime
   HookUri     String
   Retries     Int
   Status      Status
-  Scheduler   Scheduler @relation(fields: [schedulerId], references: [id])
-  schedulerId String
+  Schedule   Schedule @relation(fields: [ScheduleId], references: [id])
+  ScheduleId String
 }
 
 enum Status {
@@ -47,7 +47,7 @@ enum Status {
   QUEUED
 }
 
-enum SchedulerType {
+enum ScheduleType {
   HOURLY
   DAILY
   WEEKLY
