@@ -33,7 +33,7 @@ model Schedule {
 model ScheduleTask {
   id          String    @id @default(uuid())
   //TriggerTime DateTime
-  TriggerTime String
+  TriggerTime DateTime
   HookUri     String
   Retries     Int
   Status      Status

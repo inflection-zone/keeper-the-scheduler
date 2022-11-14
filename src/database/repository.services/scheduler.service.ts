@@ -209,30 +209,80 @@ export class ScheduleService {
         }
     };
 
+    // createTask = async (schedule)=>{
+    //     const currentDate = new Date();
+    //     const scheduleDate = schedule.StartDate;
+    //     var firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    //     var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    //     var findEndDate = schedule.EndDate > lastDayOfCurrentMonth ? lastDayOfCurrentMonth : schedule.EndDate;
+    //     var options = {
+    //         currentDate : scheduleDate,
+    //         endDate     : findEndDate,
+    //         iterator    : true,
+    //         tz          : 'system'
+    //     };
+    //     if (scheduleDate >= firstDayOfCurrentMonth && scheduleDate <= lastDayOfCurrentMonth){
+    //         try {
+    //             var interval = parser.parseExpression(schedule.CronRegEx, options);
+          
+    //             // eslint-disable-next-line no-constant-condition
+    //             var nextDate = null;
+    //             do {
+    //                 try {
+    //                     nextDate = interval.next();
+    //                     const scheduleTask =  await this.prisma.scheduleTask.create({
+    //                         data : {
+    //                             TriggerTime : nextDate.value.toString(), //worked
+    //                             HookUri     : schedule.HookUri,
+    //                             Retries     : 5,
+    //                             Status      : 'PENDING',
+    //                             Schedule    : {
+    //                                 connect : {
+    //                                     id : schedule.id
+    //                                 }
+    //                             }
+    //                         }
+    //                     });
+    //                 } catch (error) {
+    //                     ErrorHandler.throwDbAccessError(' DB Error: Unable to create schdule!', error);
+    //                 }
+    //             } while (nextDate.done !== true);
+            
+    //         } catch (error) {
+    //             ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
+    //         }
+    //     }
+    // }
+
 createTask = async (schedule)=>{
     const currentDate = new Date();
     const scheduleDate = schedule.StartDate;
     var firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    lastDayOfCurrentMonth.setHours(23);
+    lastDayOfCurrentMonth.setMinutes(59);
+    lastDayOfCurrentMonth.setSeconds(59);
+    
     var findEndDate = schedule.EndDate > lastDayOfCurrentMonth ? lastDayOfCurrentMonth : schedule.EndDate;
     var options = {
         currentDate : scheduleDate,
         endDate     : findEndDate,
         iterator    : true,
-        tz          : 'system'
+        tz          : 'UTC'
     };
     if (scheduleDate >= firstDayOfCurrentMonth && scheduleDate <= lastDayOfCurrentMonth){
         try {
             var interval = parser.parseExpression(schedule.CronRegEx, options);
-          
-            // eslint-disable-next-line no-constant-condition
             var nextDate = null;
             do {
                 try {
                     nextDate = interval.next();
-                    const scheduleTask =  await this.prisma.scheduleTask.create({
+                    const date = new Date(nextDate.value.toString());
+                    const triggerDateTime = new Date(date.toUTCString());
+                    // const scheduleTask =  await this.prisma.scheduleTask.create({
+                    await this.prisma.scheduleTask.create({
                         data : {
-                            TriggerTime : nextDate.value.toString(), //worked
+                            TriggerTime : triggerDateTime,
                             HookUri     : schedule.HookUri,
                             Retries     : 5,
                             Status      : 'PENDING',
