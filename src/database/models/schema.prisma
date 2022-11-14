@@ -20,7 +20,7 @@ model Schedule {
   DayOfMonth    Int?
   Month         Int?
   DayOfWeek     Int?
-  StartDate     DateTime
+  StartDate     DateTime 
   EndDate       DateTime
   HookUri       String
   CronRegEx     String?
@@ -32,7 +32,8 @@ model Schedule {
 
 model ScheduleTask {
   id          String    @id @default(uuid())
-  TriggerTime DateTime
+  //TriggerTime DateTime
+  TriggerTime String
   HookUri     String
   Retries     Int
   Status      Status

@@ -6,6 +6,10 @@ import {
 // } from "../../domain.types/scheduler.domain.type";
 import { PrismaClient, Prisma } from '@prisma/client';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
+import obj from 'uuid-apikey';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+var parser = require('cron-parser');
+//import parser from 'cron-parser';
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 export class ScheduleService {
@@ -18,20 +22,20 @@ export class ScheduleService {
 
    //#region Publics
 
-    create = async (createModel: Prisma.ScheduleCreateInput) => {
-        try {
-            var record = await this.prisma.schedule.create({
-                data : createModel
-            });
-            return await this.prisma.schedule.findUnique({
-                where : {
-                    id : record.id
-                }
-            });
-        } catch (error) {
-            ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
-        }
-    }
+   // create = async (createModel: Prisma.ScheduleCreateInput) => {
+   //     try {
+   //         var record = await this.prisma.schedule.create({
+   //             data : createModel
+   //         });
+   //         return await this.prisma.schedule.findUnique({
+   //             where : {
+   //                 id : record.id
+   //             }
+   //         });
+   //     } catch (error) {
+   //         ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
+   //     }
+   // }
 
     getById = async (id) => {
         try {
@@ -188,4 +192,67 @@ export class ScheduleService {
 
     // //#endregion
 
+    create = async (createModel: Prisma.ScheduleCreateInput) => {
+        try {
+            var record = await this.prisma.schedule.create({
+                data : createModel
+            });
+            const schedule = await this.prisma.schedule.findUnique({
+                where : {
+                    id : record.id
+                }
+            });
+            await this.createTask(schedule);
+            return schedule;
+        } catch (error) {
+            ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
+        }
+    };
+
+createTask = async (schedule)=>{
+    const currentDate = new Date();
+    const scheduleDate = schedule.StartDate;
+    var firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    var findEndDate = schedule.EndDate > lastDayOfCurrentMonth ? lastDayOfCurrentMonth : schedule.EndDate;
+    var options = {
+        currentDate : scheduleDate,
+        endDate     : findEndDate,
+        iterator    : true,
+        tz          : 'system'
+    };
+    if (scheduleDate >= firstDayOfCurrentMonth && scheduleDate <= lastDayOfCurrentMonth){
+        try {
+            var interval = parser.parseExpression(schedule.CronRegEx, options);
+          
+            // eslint-disable-next-line no-constant-condition
+            var nextDate = null;
+            do {
+                try {
+                    nextDate = interval.next();
+                    const scheduleTask =  await this.prisma.scheduleTask.create({
+                        data : {
+                            TriggerTime : nextDate.value.toString(), //worked
+                            HookUri     : schedule.HookUri,
+                            Retries     : 5,
+                            Status      : 'PENDING',
+                            Schedule    : {
+                                connect : {
+                                    id : schedule.id
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    ErrorHandler.throwDbAccessError(' DB Error: Unable to create schdule!', error);
+                }
+            } while (nextDate.done !== true);
+            
+        } catch (error) {
+            ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
+        }
+    }
 }
+
+}
+
