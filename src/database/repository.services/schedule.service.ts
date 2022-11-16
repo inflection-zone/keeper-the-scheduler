@@ -6,10 +6,11 @@ import {
 // } from "../../domain.types/scheduler.domain.type";
 import { PrismaClient, Prisma } from '@prisma/client';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
-import obj from 'uuid-apikey';
+//import obj from 'uuid-apikey';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-var parser = require('cron-parser');
-//import parser from 'cron-parser';
+//var parser = require('cron-parser');
+import { Logger } from '../../common/logger';
+import parser from 'cron-parser';
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 export class ScheduleService {
@@ -208,52 +209,7 @@ export class ScheduleService {
             ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
         }
     };
-
-    // createTask = async (schedule)=>{
-    //     const currentDate = new Date();
-    //     const scheduleDate = schedule.StartDate;
-    //     var firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    //     var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    //     var findEndDate = schedule.EndDate > lastDayOfCurrentMonth ? lastDayOfCurrentMonth : schedule.EndDate;
-    //     var options = {
-    //         currentDate : scheduleDate,
-    //         endDate     : findEndDate,
-    //         iterator    : true,
-    //         tz          : 'system'
-    //     };
-    //     if (scheduleDate >= firstDayOfCurrentMonth && scheduleDate <= lastDayOfCurrentMonth){
-    //         try {
-    //             var interval = parser.parseExpression(schedule.CronRegEx, options);
-          
-    //             // eslint-disable-next-line no-constant-condition
-    //             var nextDate = null;
-    //             do {
-    //                 try {
-    //                     nextDate = interval.next();
-    //                     const scheduleTask =  await this.prisma.scheduleTask.create({
-    //                         data : {
-    //                             TriggerTime : nextDate.value.toString(), //worked
-    //                             HookUri     : schedule.HookUri,
-    //                             Retries     : 5,
-    //                             Status      : 'PENDING',
-    //                             Schedule    : {
-    //                                 connect : {
-    //                                     id : schedule.id
-    //                                 }
-    //                             }
-    //                         }
-    //                     });
-    //                 } catch (error) {
-    //                     ErrorHandler.throwDbAccessError(' DB Error: Unable to create schdule!', error);
-    //                 }
-    //             } while (nextDate.done !== true);
-            
-    //         } catch (error) {
-    //             ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
-    //         }
-    //     }
-    // }
-
+    
 createTask = async (schedule)=>{
     const currentDate = new Date();
     const scheduleDate = schedule.StartDate;
@@ -269,6 +225,7 @@ createTask = async (schedule)=>{
         endDate     : findEndDate,
         iterator    : true,
         tz          : 'UTC'
+        //tz          : 'system'
     };
     if (scheduleDate >= firstDayOfCurrentMonth && scheduleDate <= lastDayOfCurrentMonth){
         try {
@@ -278,11 +235,13 @@ createTask = async (schedule)=>{
                 try {
                     nextDate = interval.next();
                     const date = new Date(nextDate.value.toString());
-                    const triggerDateTime = new Date(date.toUTCString());
+                    //Logger.instance().log('date in UTC:' + date + 'in Local time:' + date.toString());
+                    //const triggerDateTime = new Date(date.toUTCString());
                     // const scheduleTask =  await this.prisma.scheduleTask.create({
                     await this.prisma.scheduleTask.create({
                         data : {
-                            TriggerTime : triggerDateTime,
+                            //TriggerTime : triggerDateTime,
+                            TriggerTime : date.toISOString(),
                             HookUri     : schedule.HookUri,
                             Retries     : 5,
                             Status      : 'PENDING',

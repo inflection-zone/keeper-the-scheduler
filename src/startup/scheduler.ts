@@ -1,7 +1,7 @@
 import * as cron from 'node-cron';
 import * as CronSchedules from '../../seed.data/cron.schedules.json';
 import { Logger } from '../common/logger';
-
+import { MonthlyTaskService } from '../database/repository.services/monthly.task.service';
 ///////////////////////////////////////////////////////////////////////////
 
 export class Scheduler {
@@ -45,12 +45,12 @@ export class Scheduler {
     //#region Privates
 
     private scheduleDailyReminders = () => {
-        cron.schedule(Scheduler._schedules['DailyReminder'], () => {
-            Logger.instance().log('Running scheducled jobs: Daily reminders...');
-            // (async () => {
-            // var service = Loader.container.resolve(UserTaskService);
-            // await service.sendTaskReminders();
-            // })();
+        cron.schedule(Scheduler._schedules['ScheduleMonthTasks'], () => {
+            Logger.instance().log('Running scheducled jobs: Monthly task creation...');
+            (async () => {
+                var service = MonthlyTaskService.getInstance();
+                await service.createMonthlyTask();
+            })();
         });
     };
     

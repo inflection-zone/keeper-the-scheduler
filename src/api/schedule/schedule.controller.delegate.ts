@@ -1,4 +1,4 @@
-import { ScheduleService } from "../../database/repository.services/scheduler.service";
+import { ScheduleService } from "../../database/repository.services/schedule.service";
 import {
     ErrorHandler,
 } from '../../common/error.handler';

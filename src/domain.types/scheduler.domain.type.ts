@@ -13,8 +13,7 @@ export interface SchedulerCreateModel {
     CronRegEx?: string;
 }
 
-export interface StudentUpdateModel {
-    firstName?: string;
-    lastName?: string;
-    branchName?: string;
+export interface GetNextMonthDate{
+    firstDayOfNextMonth: Date;
+    lastDayOfNextMonth:Date;
 }
