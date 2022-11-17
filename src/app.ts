@@ -13,6 +13,7 @@ import { DatabaseModelManager } from './database/database.model.manager';
 import * as db from './database/database.connector';
 import { DbClient } from './database/db.client';
 import { Seeder } from './startup/seeder';
+import { MonthlyTaskService } from './database/repository.services/monthly.task.service';
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -51,6 +52,8 @@ export default class Application {
             await this._router.init();
             //const seeder = new Seeder();
             //await seeder.seed();
+            var service = MonthlyTaskService.getInstance();
+            await service.createMonthlyTask();
             //await Scheduler.instance().schedule();
         }
         catch (error) {

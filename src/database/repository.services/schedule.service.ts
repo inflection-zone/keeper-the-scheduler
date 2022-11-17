@@ -214,11 +214,7 @@ createTask = async (schedule)=>{
     const currentDate = new Date();
     const scheduleDate = schedule.StartDate;
     var firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    lastDayOfCurrentMonth.setHours(23);
-    lastDayOfCurrentMonth.setMinutes(59);
-    lastDayOfCurrentMonth.setSeconds(59);
-    
+    var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
     var findEndDate = schedule.EndDate > lastDayOfCurrentMonth ? lastDayOfCurrentMonth : schedule.EndDate;
     var options = {
         currentDate : scheduleDate,
@@ -235,12 +231,8 @@ createTask = async (schedule)=>{
                 try {
                     nextDate = interval.next();
                     const date = new Date(nextDate.value.toString());
-                    //Logger.instance().log('date in UTC:' + date + 'in Local time:' + date.toString());
-                    //const triggerDateTime = new Date(date.toUTCString());
-                    // const scheduleTask =  await this.prisma.scheduleTask.create({
                     await this.prisma.scheduleTask.create({
                         data : {
-                            //TriggerTime : triggerDateTime,
                             TriggerTime : date.toISOString(),
                             HookUri     : schedule.HookUri,
                             Retries     : 5,
@@ -253,7 +245,9 @@ createTask = async (schedule)=>{
                         }
                     });
                 } catch (error) {
-                    ErrorHandler.throwDbAccessError(' DB Error: Unable to create schdule!', error);
+                    Logger.instance().log(`${schedule.CronRegEx} : From ${scheduleDate.toISOString()} To ${findEndDate.toISOString()} : NO SCHEDULE`);
+                    Logger.instance().log('Message :' + error.message);
+                    break;
                 }
             } while (nextDate.done !== true);
             

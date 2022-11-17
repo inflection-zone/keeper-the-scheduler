@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { GetNextMonthDate } from '../../domain.types/scheduler.domain.type';
 import {
     ErrorHandler
@@ -6,6 +6,7 @@ import {
 //var parser = require('cron-parser');
 import parser from "cron-parser";
 import { Logger } from '../../common/logger';
+import { ScheduleSelectModel } from '../../domain.types/scheduler.domain.type';
 
 /////////////////////////////////////////////////////////////////////
 export class MonthlyTaskService{
@@ -25,12 +26,8 @@ export class MonthlyTaskService{
     createMonthlyTask = async()=>{
         const schedule = await this.prisma.schedule.findMany({});
         const listOfSchedule = await this.extractSchedule(schedule);
-        // listOfSchedule.forEach(item=>{
-        //     console.log(item);
-        // });
-
         try {
-            listOfSchedule.forEach(schedule=>{
+            listOfSchedule.forEach(schedule =>{
                 this.generateTasks(schedule);
             });
         } catch (error){
@@ -54,11 +51,11 @@ export class MonthlyTaskService{
         return listOfSchedule;
     }
 
-    generateTasks =async(schedule)=>{
+    generateTasks =async(schedule:ScheduleSelectModel)=>{
         const d = this.getNextMonthDetails();
         const start = schedule.StartDate < d.firstDayOfNextMonth ? d.firstDayOfNextMonth : schedule.StartDate;
-        const end = schedule.endDate > d.lastDayOfNextMonth ? d.lastDayOfNextMonth : schedule.EndDate;
-        Logger.instance().log('StartDate:' + start + ' EndDate:' + end);
+        const end = schedule.EndDate > d.lastDayOfNextMonth ? d.lastDayOfNextMonth : schedule.EndDate;
+        Logger.instance().log('StartDate:' + start.toISOString() + ' EndDate:' + end.toISOString());
         var options = {
             currentDate : start,
             endDate     : end,
@@ -72,10 +69,9 @@ export class MonthlyTaskService{
                 try {
                     nextDate = interval.next();
                     const date = new Date(nextDate.value.toString());
-                    //const triggerDateTime = new Date(date.toUTCString());
                     await this.prisma.scheduleTask.create({
                         data : {
-                            TriggerTime : date,
+                            TriggerTime : date.toISOString(),
                             HookUri     : schedule.HookUri,
                             Retries     : 5,
                             Status      : 'PENDING',
@@ -87,7 +83,9 @@ export class MonthlyTaskService{
                         }
                     });
                 } catch (error) {
-                    ErrorHandler.throwDbAccessError(' DB Error: Unable to create schdule!', error);
+                    Logger.instance().log(`${schedule.CronRegEx} : From ${start.toISOString()} To ${start.toISOString()} : NO SCHEDULE`);
+                    Logger.instance().log('Message :' + error.message);
+                    break;
                 }
             } while (nextDate.done !== true);
             
