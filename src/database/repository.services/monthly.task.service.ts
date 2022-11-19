@@ -83,14 +83,14 @@ export class MonthlyTaskService{
                         }
                     });
                 } catch (error) {
-                    Logger.instance().log(`${schedule.CronRegEx} : From ${start.toISOString()} To ${start.toISOString()} : NO SCHEDULE`);
+                    Logger.instance().log(`${schedule.CronRegEx} : From ${start.toISOString()} To ${end.toISOString()} : NO SCHEDULE`);
                     Logger.instance().log('Message :' + error.message);
                     break;
                 }
             } while (nextDate.done !== true);
             
         } catch (error) {
-            ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
+            Logger.instance().log('Invalid Cron Expression :' + error.message);
         }
     
     }

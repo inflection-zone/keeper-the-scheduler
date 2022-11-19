@@ -252,7 +252,7 @@ createTask = async (schedule)=>{
             } while (nextDate.done !== true);
             
         } catch (error) {
-            ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
+            Logger.instance().log('Invalid Cron Expression :' + error.message);
         }
     }
 }
