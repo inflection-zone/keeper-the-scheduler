@@ -14,6 +14,7 @@ import * as db from './database/database.connector';
 import { DbClient } from './database/db.client';
 import { Seeder } from './startup/seeder';
 import { MonthlyTaskService } from './database/repository.services/monthly.task.service';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 /////////////////////////////////////////////////////////////////////////
 

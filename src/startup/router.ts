@@ -44,11 +44,14 @@ import { Logger } from "../common/logger";
 // import { register as registerFacultyRoutes } from "../api/faculty/faculty.routes";
 // import { register as registerAcademicRoutes } from "../api/academic/academic.routes";
 import { register as registerScheduleRoutes } from "../api/schedule/schedule.routes";
+import { PrismaClientInit } from '../startup/prisma.client.init';
 ////////////////////////////////////////////////////////////////////////////////////
 
 export class Router {
 
     private _app = null;
+
+    prisma = PrismaClientInit.instance().prisma();
 
     constructor(app: express.Application) {
         this._app = app;
@@ -64,6 +67,28 @@ export class Router {
                         message : `Schedule Service API [Version ${process.env.API_VERSION}]`,
                     });
                 });
+                this.prisma.$use(async (params, next) => {
+                    // Check incoming query type
+                    if (params.model === 'Schedule') {
+                        if (params.action === 'delete') {
+                        // Delete queries
+                        // Change action to an update
+                            params.action = 'update';
+                            params.args['data'] = { DeletedAt: new Date() };
+                        }
+                        if (params.action === 'deleteMany') {
+                        // Delete many queries
+                            params.action = 'updateMany';
+                            if (params.args.data !== undefined) {
+                                params.args.data['deletedAt'] = new Date();
+                            } else {
+                                params.args['data'] = { DeletedAt: new Date() };
+                            }
+                        }
+                    }
+                    return next(params);
+                });
+                
                 registerScheduleRoutes(this._app);
                 // registerFacultyRoutes(this._app);
                 // registerAcademicRoutes(this._app);

@@ -26,7 +26,7 @@ model Schedule {
   CronRegEx     String?
   CreatedAt     DateTime         @default(now())
   UpdatedAt     DateTime         @updatedAt
-  DeletedAt     DateTime?         
+  DeletedAt     DateTime?           
   Tasks         ScheduleTask[]
 }
 

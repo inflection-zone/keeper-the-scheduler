@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+//import { Prisma, PrismaClient } from '@prisma/client';
 import { GetNextMonthDate } from '../../domain.types/scheduler.domain.type';
 import {
     ErrorHandler
@@ -7,16 +7,16 @@ import {
 import parser from "cron-parser";
 import { Logger } from '../../common/logger';
 import { ScheduleSelectModel } from '../../domain.types/scheduler.domain.type';
-
+import { PrismaClientInit } from '../../startup/prisma.client.init';
 /////////////////////////////////////////////////////////////////////
 export class MonthlyTaskService{
 
-    public prisma: PrismaClient=null;
+    prisma = PrismaClientInit.instance().prisma();
 
     public static instance: MonthlyTaskService=null;
 
     private constructor(){
-        this.prisma = new PrismaClient();
+        
     }
 
     public static getInstance(): MonthlyTaskService{
@@ -24,7 +24,11 @@ export class MonthlyTaskService{
     }
 
     createMonthlyTask = async()=>{
-        const schedule = await this.prisma.schedule.findMany({});
+        const schedule = await this.prisma.schedule.findMany({
+            where : {
+                DeletedAt : null
+            }
+        });
         const listOfSchedule = await this.extractSchedule(schedule);
         try {
             listOfSchedule.forEach(schedule =>{

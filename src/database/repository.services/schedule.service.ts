@@ -4,20 +4,21 @@ import {
 // import {
 //     SchedulerCreateModel
 // } from "../../domain.types/scheduler.domain.type";
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
 //import obj from 'uuid-apikey';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 //var parser = require('cron-parser');
 import { Logger } from '../../common/logger';
 import parser from 'cron-parser';
+import { PrismaClientInit } from '../../startup/prisma.client.init';
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 export class ScheduleService {
 
     //#region Models
 
-   prisma = new PrismaClient();
+   prisma = PrismaClientInit.instance().prisma();
    
    //#endregion
 
@@ -40,9 +41,11 @@ export class ScheduleService {
 
     getById = async (id) => {
         try {
-            const record = await this.prisma.schedule.findUnique({
+            //const record = await this.prisma.schedule.findUnique({
+            const record = await this.prisma.schedule.findFirst({
                 where : {
-                    id : id
+                    id        : id,
+                    DeletedAt : null
                 },
             });
             return record;
@@ -94,10 +97,12 @@ export class ScheduleService {
     update = async (id:uuid, updateModel) => {
         try {
             if (Object.keys(updateModel).length > 0) {
-                var res = await this.prisma.schedule.update({
+                //var res = await this.prisma.schedule.update({
+                var res = await this.prisma.schedule.updateMany({
                     data  : updateModel,
                     where : {
-                        id : id,
+                        id        : id,
+                        DeletedAt : null
                     }
                 });
                 if (res == null) {
