@@ -15,6 +15,7 @@ import { DbClient } from './database/db.client';
 import { Seeder } from './startup/seeder';
 import { MonthlyTaskService } from './database/repository.services/monthly.task.service';
 import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClientInit } from '../src/startup/prisma.client.init';
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -27,6 +28,8 @@ export default class Application {
     private _router: Router = null;
 
     private static _instance: Application = null;
+
+    prisma = PrismaClientInit.instance().prisma();
 
     //#endregion
 
@@ -116,6 +119,28 @@ export default class Application {
                     useTempFiles      : true,
                     tempFileDir       : '/tmp/uploads/'
                 }));
+
+                this.prisma.$use(async (params, next) => {
+                    // Check incoming query type
+                    if (params.model === 'Schedule') {
+                        if (params.action === 'delete') {
+                        // Delete queries
+                        // Change action to an update
+                            params.action = 'update';
+                            params.args['data'] = { DeletedAt: new Date() };
+                        }
+                        if (params.action === 'deleteMany') {
+                        // Delete many queries
+                            params.action = 'updateMany';
+                            if (params.args.data !== undefined) {
+                                params.args.data['deletedAt'] = new Date();
+                            } else {
+                                params.args['data'] = { DeletedAt: new Date() };
+                            }
+                        }
+                    }
+                    return next(params);
+                });
                 resolve(true);
             }
             catch (error) {

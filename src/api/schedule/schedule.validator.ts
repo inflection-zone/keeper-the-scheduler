@@ -5,7 +5,7 @@ import { ErrorHandler } from '../../common/error.handler';
 
 export class ScheduleValidator {
 
-    static validateCreateRequest = async (requestBody) => {
+    static validateCronExprCreateRequest = async (requestBody) => {
         try {
             const schema = joi.object({
                 ScheduleName : joi.string().max(64).required(),
@@ -19,7 +19,7 @@ export class ScheduleValidator {
                 StartDate    : joi.date().min(new Date()).iso().required(),
                 EndDate      : joi.date().min(new Date()).iso().greater(joi.ref('StartDate')).required(),
                 HookUri      : joi.string().uri().required(),
-                CronRegEx    : joi.string().max(64).optional(),
+                CronRegEx    : joi.string().max(64).required(),
 
             });
             return await schema.validateAsync(requestBody);

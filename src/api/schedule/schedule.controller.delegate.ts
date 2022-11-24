@@ -24,7 +24,7 @@ export class ScheduleControllerDelegate {
     //#endregion
 
     create = async (requestBody: any) => {
-        await validator.validateCreateRequest(requestBody);
+        await validator.validateCronExprCreateRequest(requestBody);
         var createModel: Prisma.ScheduleCreateInput = this.getCreateModel(requestBody);
         const record = await this._service.create(createModel);
         if (record === null) {

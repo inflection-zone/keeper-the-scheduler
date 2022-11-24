@@ -14,8 +14,8 @@ export const register = (app: express.Application): void => {
     const authenticator = Loader.Authenticator;
     const controller = new ScheduleController();
 
-    router.post('/', authenticator.authenticateUser,controller.create);
-    //router.post('/by-regex', authenticator.authenticateUser,controller.create);
+    //router.post('/', authenticator.authenticateUser,controller.create);
+    router.post('/cronexpr', authenticator.authenticateUser,controller.create);
     router.get('/:id', authenticator.authenticateUser, controller.getById);
     router.delete('/:id', authenticator.authenticateUser,controller.delete);
     router.put('/:id',authenticator.authenticateUser,controller.update);

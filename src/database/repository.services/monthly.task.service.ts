@@ -1,8 +1,5 @@
 //import { Prisma, PrismaClient } from '@prisma/client';
 import { GetNextMonthDate } from '../../domain.types/scheduler.domain.type';
-import {
-    ErrorHandler
-} from '../../common/error.handler';
 //var parser = require('cron-parser');
 import parser from "cron-parser";
 import { Logger } from '../../common/logger';
