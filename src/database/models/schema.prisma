@@ -13,7 +13,7 @@ datasource db {
 model Schedule {
   id            String           @id @default(uuid())
   ScheduleName String
-  ScheduleType ScheduleType
+  ScheduleType ScheduleType?
   Frequency     Int?
   Minutes       Int?
   Hours         Int?

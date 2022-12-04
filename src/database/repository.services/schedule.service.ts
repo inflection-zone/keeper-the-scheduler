@@ -198,7 +198,7 @@ export class ScheduleService {
 
     // //#endregion
 
-    create = async (createModel: Prisma.ScheduleCreateInput) => {
+    createByUsingCronExpression = async (createModel: Prisma.ScheduleCreateInput) => {
         try {
             var record = await this.prisma.schedule.create({
                 data : createModel
@@ -208,59 +208,59 @@ export class ScheduleService {
                     id : record.id
                 }
             });
-            await this.createTask(schedule);
+            await this.createTaskByUsingCronExpression(schedule);
             return schedule;
         } catch (error) {
             ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
         }
     };
     
-createTask = async (schedule)=>{
-    const currentDate = new Date();
-    const scheduleDate = schedule.StartDate;
-    var firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-    var findEndDate = schedule.EndDate > lastDayOfCurrentMonth ? lastDayOfCurrentMonth : schedule.EndDate;
-    var options = {
-        currentDate : scheduleDate,
-        endDate     : findEndDate,
-        iterator    : true,
-        tz          : 'UTC'
+    createTaskByUsingCronExpression = async (schedule)=>{
+        const currentDate = new Date();
+        const scheduleDate = schedule.StartDate;
+        var firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+        var findEndDate = schedule.EndDate > lastDayOfCurrentMonth ? lastDayOfCurrentMonth : schedule.EndDate;
+        var options = {
+            currentDate : scheduleDate,
+            endDate     : findEndDate,
+            iterator    : true,
+            tz          : 'UTC'
         //tz          : 'system'
-    };
-    if (scheduleDate >= firstDayOfCurrentMonth && scheduleDate <= lastDayOfCurrentMonth){
-        try {
-            var interval = parser.parseExpression(schedule.CronRegEx, options);
-            var nextDate = null;
-            do {
-                try {
-                    nextDate = interval.next();
-                    const date = new Date(nextDate.value.toString());
-                    await this.prisma.scheduleTask.create({
-                        data : {
-                            TriggerTime : date.toISOString(),
-                            HookUri     : schedule.HookUri,
-                            Retries     : 5,
-                            Status      : 'PENDING',
-                            Schedule    : {
-                                connect : {
-                                    id : schedule.id
+        };
+        if (scheduleDate >= firstDayOfCurrentMonth && scheduleDate <= lastDayOfCurrentMonth){
+            try {
+                var interval = parser.parseExpression(schedule.CronRegEx, options);
+                var nextDate = null;
+                do {
+                    try {
+                        nextDate = interval.next();
+                        const date = new Date(nextDate.value.toString());
+                        await this.prisma.scheduleTask.create({
+                            data : {
+                                TriggerTime : date.toISOString(),
+                                HookUri     : schedule.HookUri,
+                                Retries     : 5,
+                                Status      : 'PENDING',
+                                Schedule    : {
+                                    connect : {
+                                        id : schedule.id
+                                    }
                                 }
                             }
-                        }
-                    });
-                } catch (error) {
-                    Logger.instance().log(`${schedule.CronRegEx} : From ${scheduleDate.toISOString()} To ${findEndDate.toISOString()} : NO SCHEDULE`);
-                    Logger.instance().log('Message :' + error.message);
-                    break;
-                }
-            } while (nextDate.done !== true);
+                        });
+                    } catch (error) {
+                        Logger.instance().log(`${schedule.CronRegEx} : From ${scheduleDate.toISOString()} To ${findEndDate.toISOString()} : NO SCHEDULE`);
+                        Logger.instance().log('Message :' + error.message);
+                        break;
+                    }
+                } while (nextDate.done !== true);
             
-        } catch (error) {
-            Logger.instance().log('Invalid Cron Expression :' + error.message);
+            } catch (error) {
+                Logger.instance().log('Invalid Cron Expression :' + error.message);
+            }
         }
     }
-}
 
 }
 

@@ -18,9 +18,9 @@ export class ScheduleController extends BaseController {
 
     //#endregion
 
-    create = async (request: express.Request, response: express.Response): Promise<void> => {
+    createByUsingCronExpression = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            const record = await this._delegate.create(request.body);
+            const record = await this._delegate.createByUsingCronExpression(request.body);
             const message = 'Schedule added successfully!';
             ResponseHandler.success(request, response, message, 201, record);
         } catch (error) {

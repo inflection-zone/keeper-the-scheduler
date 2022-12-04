@@ -23,10 +23,10 @@ export class ScheduleControllerDelegate {
 
     //#endregion
 
-    create = async (requestBody: any) => {
+    createByUsingCronExpression = async (requestBody: any) => {
         await validator.validateCronExprCreateRequest(requestBody);
         var createModel: Prisma.ScheduleCreateInput = this.getCreateModel(requestBody);
-        const record = await this._service.create(createModel);
+        const record = await this._service.createByUsingCronExpression(createModel);
         if (record === null) {
             throw new ApiError('Unable to create Schedule!', 400);
         }
@@ -163,7 +163,7 @@ export class ScheduleControllerDelegate {
     getCreateModel = (requestBody): Prisma.ScheduleCreateInput => {
         return {
             ScheduleName : requestBody.ScheduleName ? requestBody.ScheduleName : null,
-            ScheduleType : requestBody.ScheduleType ? requestBody.ScheduleType : 'DAILY',
+            ScheduleType : requestBody.ScheduleType ? requestBody.ScheduleType : null,
             Frequency    : requestBody.Frequenct ? requestBody.Frequenct : null,
             Minutes      : requestBody.Minutes ? requestBody.Minutes : null,
             Hours        : requestBody.Hours ? requestBody.Hours : null,
