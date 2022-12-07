@@ -12,6 +12,7 @@ import { uuid } from '../../domain.types/miscellaneous/system.types';
 import { Logger } from '../../common/logger';
 import parser from 'cron-parser';
 import { PrismaClientInit } from '../../startup/prisma.client.init';
+//import { ScheduleTaskModel } from '../../domain.types/scheduler.domain.type';
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 export class ScheduleService {
@@ -215,6 +216,50 @@ export class ScheduleService {
         }
     };
     
+    createByUsingCronObject = async (createModel: Prisma.ScheduleCreateInput) => {
+        try {
+            var record = await this.prisma.schedule.create({
+                data : createModel
+            });
+            const schedule = await this.prisma.schedule.findUnique({
+                where : {
+                    id : record.id
+                }
+            });
+            await this.createTaskByUsingCronExpression(schedule);
+            return schedule;
+        } catch (error) {
+            ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
+        }
+    };
+
+    createScheduleTaskByUsingCronObject =async (createModel)=>{
+        try {
+            await this.prisma.scheduleTask.create({
+                data : {
+                    TriggerTime : createModel.TriggerTime.toISOString(),
+                    HookUri     : createModel.HookUri,
+                    Retries     : createModel.Retries,
+                    Status      : createModel.Status,
+                    Schedule    : {
+                        connect : {
+                            id : createModel.ScheduleId
+                        }
+                    }
+                }
+            });
+            // const schedule = await this.prisma.schedule.findUnique({
+            //     where : {
+            //         id : record.id
+            //     }
+            // });
+            // await this.createTaskByUsingCronExpression(schedule);
+            // return schedule;
+        } catch (error) {
+            ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
+        }
+    }
+
     createTaskByUsingCronExpression = async (schedule)=>{
         const currentDate = new Date();
         const scheduleDate = schedule.StartDate;

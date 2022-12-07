@@ -3,12 +3,15 @@ import {
     ErrorHandler,
 } from '../../common/error.handler';
 import { Helper } from '../../common/helper';
+import { CronObjectSchedule } from "../../common/cron.object.schedule";
 import { ApiError } from '../../common/api.error';
 import { ScheduleValidator as validator } from './schedule.validator';
 // import { Logger } from '../../common/logger';
 // import { Prisma } from "@prisma/client";
 import { Prisma } from '@prisma/client';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
+import { CronObject, ScheduleTaskModel } from '../../domain.types/scheduler.domain.type';
+//import { number } from "joi";
 ///////////////////////////////////////////////////////////////////////////////////////
 
 export class ScheduleControllerDelegate {
@@ -17,8 +20,11 @@ export class ScheduleControllerDelegate {
 
     _service: ScheduleService = null;
 
+    _cronSchedule: CronObjectSchedule = null;
+
     constructor() {
         this._service = new ScheduleService();
+        this._cronSchedule = new CronObjectSchedule();
     }
 
     //#endregion
@@ -27,6 +33,23 @@ export class ScheduleControllerDelegate {
         await validator.validateCronExprCreateRequest(requestBody);
         var createModel: Prisma.ScheduleCreateInput = this.getCreateModel(requestBody);
         const record = await this._service.createByUsingCronExpression(createModel);
+        if (record === null) {
+            throw new ApiError('Unable to create Schedule!', 400);
+        }
+        return this.getEnrichedDto(record);
+    };
+
+    createByUsingCronObject = async (requestBody: any) => {
+        await validator.validateCronObjectCreateRequest(requestBody);
+        var createModel: Prisma.ScheduleCreateInput = this.getCreateModel(requestBody);
+        const record = await this._service.createByUsingCronObject(createModel);
+        const cronTab : CronObject = await this.convertToCronObject(record);
+        const scheduleDates = await this._cronSchedule.createScheuleTasks(cronTab);
+        var createManyModel : ScheduleTaskModel[] = this.getCreateManyModel(scheduleDates,record);
+        // await this._service.createScheduleTaskByUsingCronObject(createManyModel);
+        createManyModel.forEach(async schedule=>{
+            await this._service.createScheduleTaskByUsingCronObject(schedule);
+        });
         if (record === null) {
             throw new ApiError('Unable to create Schedule!', 400);
         }
@@ -52,6 +75,23 @@ export class ScheduleControllerDelegate {
         return this.getEnrichedDto(record);
     }
 
+    convertToCronObject = async (record):Promise<CronObject> => {
+        const cronObject:CronObject = {
+            id            : record.id,
+            SchedulerName : record.SchedulerName,
+            ScheduleType  : record.ScheduleType,
+            Frequency     : record.Frequency,
+            Minutes       : record.Minutes,
+            Hours         : record.Hours,
+            DayOfMonth    : record.DayOfMonth,
+            Month         : record.Month,
+            DayOfWeek     : record.DayOfWeek,
+            StartDate     : new Date(record.StartDate),
+            EndDate       : new Date(record.EndDate),
+            HookUri       : record.HookUri,
+        };
+        return cronObject;
+    }
     // search = async (query: any) => {
     //     await validator.validateSearchRequest(query);
     //     var filters: ClientSearchFilters = this.getSearchFilters(query);
@@ -164,7 +204,7 @@ export class ScheduleControllerDelegate {
         return {
             ScheduleName : requestBody.ScheduleName ? requestBody.ScheduleName : null,
             ScheduleType : requestBody.ScheduleType ? requestBody.ScheduleType : null,
-            Frequency    : requestBody.Frequenct ? requestBody.Frequenct : null,
+            Frequency    : requestBody.Frequency ? requestBody.Frequency : null,
             Minutes      : requestBody.Minutes ? requestBody.Minutes : null,
             Hours        : requestBody.Hours ? requestBody.Hours : null,
             DayOfMonth   : requestBody.DayOfMonth ? requestBody.DayOfMonth : null,
@@ -176,6 +216,22 @@ export class ScheduleControllerDelegate {
             CronRegEx    : requestBody.CronRegEx ? requestBody.CronRegEx : null,
             DeletedAt    : requestBody.DeletedAt ? requestBody.DeletedAt : null,
         };
+    };
+
+    getCreateManyModel=(scheduleDates:Date[],record):ScheduleTaskModel[]=>{
+        const createManymodel :ScheduleTaskModel[] = [];
+                
+        for (const date of scheduleDates) {
+            const model = <ScheduleTaskModel>{ };
+            model.TriggerTime = new Date(date.toISOString()),
+            model.HookUri = record.HookUri,
+            model.Retries = 5,
+            model.Status = 'PENDING';
+            model.ScheduleId = record.id;
+            createManymodel.push(model);
+        }
+
+        return createManymodel;
     };
 
     getEnrichedDto = (record) => {

@@ -28,6 +28,16 @@ export class ScheduleController extends BaseController {
         }
     };
 
+    createByUsingCronObject = async (request: express.Request, response: express.Response): Promise<void> => {
+        try {
+            const record = await this._delegate.createByUsingCronObject(request.body);
+            const message = 'Schedule added successfully!';
+            ResponseHandler.success(request, response, message, 201, record);
+        } catch (error) {
+            ResponseHandler.handleError(request, response, error);
+        }
+    };
+
     // getAllFaculty= async (request: express.Request, response: express.Response): Promise<void> => {
     //     try {
     //         //await this.authorize('Participant.Create', request, response);
