@@ -8,7 +8,7 @@ export class CronObjectSchedule {
 
     public createScheuleTasks = async (cronTab:CronObject) => {
         
-        if (cronTab.ScheduleType === "HOURLY" || cronTab.ScheduleType === "DAILY") {
+        if (cronTab.ScheduleType === "HOURLY" || cronTab.ScheduleType === "DAILY" || cronTab.ScheduleType === "WEEKLY") {
             if (cronTab.Frequency === 1) {
                 return this.createDefaultScheduleTask(cronTab);
             } else {
@@ -79,6 +79,10 @@ export class CronObjectSchedule {
             if (cronTab.ScheduleType === 'DAILY'){
                 temp.setUTCHours(nextDate.getUTCHours() + 24);
             }
+
+            if (cronTab.ScheduleType === 'WEEKLY'){
+                temp.setUTCDate(nextDate.getUTCDate() + 7);
+            }
             nextDate = temp;
         }
         return scheduleTask;
@@ -100,6 +104,20 @@ export class CronObjectSchedule {
             nextDate.setUTCHours(cronTab.Hours);
             nextDate.setUTCMinutes(cronTab.Minutes);
             nextDate.setUTCSeconds(0);
+            nextDate.setUTCMilliseconds(0);
+        }
+
+        if (cronTab.ScheduleType === "WEEKLY") {
+            const weekDayNumber = nextDate.getUTCDay();
+            for (let i = weekDayNumber; i > 0; i--) {
+                nextDate.setUTCDate(nextDate.getUTCDate() - 1);
+            }
+            const DayOfWeek = cronTab.DayOfWeek;
+            for (let i = 0; i < DayOfWeek; i++) {
+                nextDate.setUTCDate(nextDate.getUTCDate() + 1);
+            }
+            nextDate.setUTCHours(cronTab.Hours);
+            nextDate.setUTCMinutes(cronTab.Minutes);
             nextDate.setUTCMilliseconds(0);
         }
   
@@ -209,7 +227,18 @@ export class CronObjectSchedule {
             result = (this.getTotalSecondsPerHour() * 24) / cronTab.Frequency;
         }
   
+        if (cronTab.ScheduleType === "WEEKLY") {
+            result = (this.getTotalSecondsPerHour() * 24 * 7) / cronTab.Frequency;
+        }
+
         if (cronTab.ScheduleType === "MONTHLY") {
+            if (cronTab.StartDate.getUTCMonth() === 1) {
+                this.monthLength[1] = this.isLeapYear(
+                    cronTab.StartDate.getUTCFullYear()
+                )
+                    ? 29
+                    : 28;
+            }
             const totalDaysInMonth = this.monthLength[cronTab.StartDate.getUTCMonth()];
             result =
           (this.getTotalSecondsPerHour() * 24 * totalDaysInMonth) /
@@ -232,6 +261,13 @@ export class CronObjectSchedule {
         }
 
         if (cronTab.ScheduleType === 'MONTHLY'){
+            if (cronTab.StartDate.getUTCMonth() === 1) {
+                this.monthLength[1] = this.isLeapYear(
+                    cronTab.StartDate.getUTCFullYear()
+                )
+                    ? 29
+                    : 28;
+            }
             totalSeconds =
         3600 * 24 * this.monthLength[cronTab.StartDate.getUTCMonth()];
         }
@@ -356,6 +392,10 @@ export class CronObjectSchedule {
             temp = new Date(nextDate.toISOString());
             temp.setUTCDate(25);
             temp.setUTCMonth(temp.getUTCMonth() + 1);
+            if (temp.getUTCMonth() === 1) {
+                this.monthLength[1] = this.isLeapYear(temp.getUTCFullYear()) ? 29 : 28;
+            }
+
             if (this.validateDate(temp.getUTCMonth(), scheduleDate)) {
                 temp.setUTCDate(scheduleDate);
                 nextDate = new Date(temp.toISOString());
@@ -445,5 +485,9 @@ export class CronObjectSchedule {
     //     }
     //     //console.log(scheduleTask);
     // };
+
+    isLeapYear = (year: number): boolean => {
+        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    };
 
 }
