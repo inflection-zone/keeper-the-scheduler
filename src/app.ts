@@ -16,6 +16,7 @@ import { Seeder } from './startup/seeder';
 import { MonthlyTaskService } from './database/repository.services/monthly.task.service';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { PrismaClientInit } from '../src/startup/prisma.client.init';
+import { MonthlyCronObjectTask } from '../src/database/repository.services/monthly.cron.object.service';
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -60,6 +61,8 @@ export default class Application {
             // var service = MonthlyTaskService.getInstance();
             // await service.createMonthlyTask();
             
+            // var service = new MonthlyCronObjectTask();
+            // console.log(await service.getSchedule());
             //await Scheduler.instance().schedule();
         }
         catch (error) {

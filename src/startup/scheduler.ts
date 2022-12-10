@@ -1,4 +1,5 @@
 import * as cron from 'node-cron';
+import { MonthlyCronObjectTask } from '../database/repository.services/monthly.cron.object.service';
 import * as CronSchedules from '../../seed.data/cron.schedules.json';
 import { Logger } from '../common/logger';
 import { MonthlyTaskService } from '../database/repository.services/monthly.task.service';
@@ -30,8 +31,8 @@ export class Scheduler {
         return new Promise((resolve, reject) => {
             try {
 
-                this.scheduleDailyReminders();
-                
+                this.scheduleCronExpTask();
+                this.scheduleCronObjectTask();
                 resolve(true);
             } catch (error) {
                 Logger.instance().log('Error initializing the scheduler.: ' + error.message);
@@ -44,9 +45,9 @@ export class Scheduler {
 
     //#region Privates
 
-    private scheduleDailyReminders = () => {
-        cron.schedule(Scheduler._schedules['ScheduleMonthTasks'], () => {
-            Logger.instance().log('Running scheducled jobs: Monthly task creation...');
+    private scheduleCronExpTask = () => {
+        cron.schedule(Scheduler._schedules['ScheduleCronExpTask'], () => {
+            Logger.instance().log('Running scheduled jobs: Monthly task creation using Cron Expression');
             (async () => {
                 var service = MonthlyTaskService.getInstance();
                 await service.createMonthlyTask();
@@ -54,6 +55,15 @@ export class Scheduler {
         });
     };
     
+    private scheduleCronObjectTask = () => {
+        cron.schedule(Scheduler._schedules['ScheduleCronObjectTask'], () => {
+            Logger.instance().log('Running scheduled jobs: Monthly task creation using Cron Object');
+            (async () => {
+                var service = new MonthlyCronObjectTask();
+                await service.getSchedule();
+            })();
+        });
+    };
     //#endregion
 
 }

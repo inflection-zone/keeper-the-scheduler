@@ -55,22 +55,53 @@ export class ScheduleService {
         }
     }
 
-    getCronObjectScheduleById = async (id) => {
+    getCronObjectSchedule = async (start:Date, end:Date) => {
         try {
             //const record = await this.prisma.schedule.findUnique({
-            const record = await this.prisma.schedule.findFirst({
+            const record = await this.prisma.schedule.findMany({
                 where : {
-                    id        : id,
+                    OR : [{
+                        AND : [
+                            {
+                                StartDate : {
+                                    lt : start,
+                                }
+                            },
+                            {
+                                EndDate : {
+                                    gt : start,
+                                }
+                            }
+                        ]
+                    },
+
+                    {
+                        AND : [
+                            {
+                                StartDate : {
+                                    gte : start,
+                                }
+                            },
+                            {
+                                StartDate : {
+                                    lt : end,
+                                }
+                            }
+                        ]
+                    }
+                        
+                    ],
                     CronRegEx : null,
                     DeletedAt : null
                 },
             });
+            //console.log(record);
             return record;
         } catch (error) {
             ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve schedule!', error);
         }
     }
-    
+
     // exists = async (id): Promise < boolean > => {
     //     try {
     //         const record = await this.Client.findByPk(id);

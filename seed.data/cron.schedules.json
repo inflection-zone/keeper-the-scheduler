@@ -1,14 +1,18 @@
 {
     "local": {
-        "ScheduleMonthTasks":"*/1 * * * *"
+        "ScheduleCronExpTask":"*/1 * * * *",
+        "ScheduleCronObjectTask":"*/1 * * * *"
     },
     "development": {
-        "ScheduleMonthTasks":"*/1 * * * *"
+        "ScheduleCronExpTask":"*/1 * * * *",
+        "ScheduleCronObjectTask":"*/1 * * * *"
     },
     "uat": {
-        "ScheduleMonthTasks":"*/1 * * * *"
+        "ScheduleCronExpTask":"*/1 * * * *",
+        "ScheduleCronObjectTask":"*/1 * * * *"
     },
     "production": {
-        "ScheduleMonthTasks":"*/1 * * * *"
+        "ScheduleCronExpTask":"*/1 * * * *",
+        "ScheduleCronObjectTask":"*/1 * * * *"
     }
 }

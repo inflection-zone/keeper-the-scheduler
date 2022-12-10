@@ -1,6 +1,7 @@
 export interface SchedulerCreateModel {
     id?: string;
-    SchedulerName: string;
+    ScheduleName: string;
+    ScheduleType? : string;
     Frequency?: number;
     Minutes?: number;
     Hours?: number;
@@ -59,4 +60,9 @@ export interface CronObject {
     StartDate: Date;
     EndDate: Date;
     HookUri: string;
+}
+
+export interface Month {
+    Start: Date;
+    End : Date;
 }
