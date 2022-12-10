@@ -15,15 +15,7 @@ export class CronObjectSchedule {
                 return this.scheduleTask(cronTab);
             }
         }
-  
-        // if (cronTab.ScheduleType === "DAILY") {
-        //     if (cronTab.Frequency === 1) {
-        //         this.createDefaultScheduleTask(cronTab);
-        //     } else {
-        //         this.scheduleTask(cronTab);
-        //     }
-        // }
-  
+    
         if (cronTab.ScheduleType === "MONTHLY") {
             if (cronTab.Frequency === 1) {
                 return this.createDefaultMonthlyScheduleTask(cronTab);
@@ -63,7 +55,6 @@ export class CronObjectSchedule {
     public createDefaultScheduleTask = async (cronTab:CronObject) => {
         const scheduleTask = new Array<Date>();
         const startDate:Date = cronTab.StartDate;
-        //console.log(startDate);
         const endDate = cronTab.EndDate;
         let nextDate = this.setNextDate(cronTab);
         while (endDate.getTime() >= nextDate.getTime()) {
@@ -90,7 +81,6 @@ export class CronObjectSchedule {
   
     public setNextDate = (cronTab:CronObject): Date => {
         const nextDate = new Date(cronTab.StartDate.toISOString());
-        //const nextDate = new Date(cronTab.StartDate);
         if (cronTab.ScheduleType === "HOURLY") {
             if (nextDate.getUTCMinutes() > cronTab.Minutes) {
                 nextDate.setUTCHours(cronTab.StartDate.getUTCHours() + 1);
@@ -127,7 +117,6 @@ export class CronObjectSchedule {
             nextDate.setUTCMinutes(cronTab.Minutes);
             nextDate.setUTCMilliseconds(0);
         }
-        //console.log(nextDate);
         return nextDate;
     };
   
@@ -155,28 +144,6 @@ export class CronObjectSchedule {
         }
     };
   
-    // createMonthlyScheduleTask = (cronTab) => {
-    //     const iterationsAfterSeconds = this.getIterationsAfterSeconds(cronTab);
-    //     //console.log(iterationsAfterSeconds / (3600 * 24));
-    //     if (iterationsAfterSeconds % 2 === 0) {
-    //         this.createTaskEvenly(iterationsAfterSeconds, cronTab);
-    //     } else {
-    //         this.createTaskUnevenly(
-    //             Math.round(iterationsAfterSeconds),
-    //             cronTab
-    //         );
-    //     }
-    // };
-    // createDailylyScheduleTask = (cronTab) => {
-    //     const iterationsAfterSeconds = this.getIterationsAfterSeconds(cronTab);
-    //     //console.log(iterationsAfterSeconds / 3600);
-    //     if (iterationsAfterSeconds % 2 === 0) {
-    //         this.createDailyTaskEvenly(iterationsAfterSeconds, cronTab);
-    //     } else {
-    //         this.createDailyTaskUnevenly(Math.round(iterationsAfterSeconds), cronTab);
-    //     }
-    // };
-
     createTaskEvenly = async (iterationsAfterSeconds: number, cronTab:CronObject) => {
         const scheduleTask = new Array<Date>();
         const startDate = cronTab.StartDate;
@@ -190,28 +157,8 @@ export class CronObjectSchedule {
             temp.setUTCSeconds(nextDate.getUTCSeconds() + iterationsAfterSeconds);
             nextDate = temp;
         }
-        //console.log(scheduleTask);
         return scheduleTask;
     };
-
-    // createDailyTaskEvenly = (
-    //     iterationsAfterSeconds: number,
-    //     cronTab
-    // ) => {
-    //     const scheduleTask = new Array<Date>();
-    //     const startDate = cronTab.StartDate;
-    //     const endDate = cronTab.EndDate;
-    //     let nextDate = this.resetStartDate(cronTab);
-    //     while (endDate.getTime() >= nextDate.getTime()) {
-    //         if (nextDate.getTime() > startDate.getTime()) {
-    //             scheduleTask.push(new Date(nextDate));
-    //         }
-    //         const temp: Date = nextDate;
-    //         temp.setUTCSeconds(nextDate.getUTCSeconds() + iterationsAfterSeconds);
-    //         nextDate = temp;
-    //     }
-    //     //console.log(scheduleTask);
-    // };
       
     getTotalSecondsPerHour = (): number => {
         return 3600;
@@ -295,87 +242,9 @@ export class CronObjectSchedule {
             count++;
             nextDate = new Date(temp);
         }
-        //console.log(scheduleTask);
         return scheduleTask;
     };
 
-    /////////////////////////////////////////////////////////////////////
-    // createDefaultDailyScheduleTask = (cronTab) => {
-    //     const scheduleTask = new Array<Date>();
-    //     const startDate = cronTab.StartDate;
-    //     //console.log(startDate);
-    //     const endDate = cronTab.EndDate;
-    //     let nextDate = this.setNextDate(cronTab);
-    //     //console.log(nextDate);
-    //     while (endDate.getTime() >= nextDate.getTime()) {
-    //         if (nextDate.getTime() >= startDate.getTime()) {
-    //             scheduleTask.push(new Date(nextDate));
-    //         }
-    //         //scheduleTask.push(new Date(nextDate));
-    //         const temp: Date = nextDate;
-    //         temp.setUTCHours(nextDate.getUTCHours() + 24); //only changed
-    //         nextDate = temp;
-    //     }
-    //     //console.log(scheduleTask);
-    // };
-  
-    //no change same like hourly
-      
-    //No change same like Hourly
-    // createDailyTaskEvenly = (
-    //     iterationsAfterSeconds: number,
-    //     cronTab
-    // ) => {
-    //     const scheduleTask = new Array<Date>();
-    //     const startDate = cronTab.StartDate;
-    //     const endDate = cronTab.EndDate;
-    //     let nextDate = this.resetStartDate(cronTab);
-    //     while (endDate.getTime() >= nextDate.getTime()) {
-    //         if (nextDate.getTime() > startDate.getTime()) {
-    //             scheduleTask.push(new Date(nextDate));
-    //         }
-    //         const temp: Date = nextDate;
-    //         temp.setUTCSeconds(nextDate.getUTCSeconds() + iterationsAfterSeconds);
-    //         nextDate = temp;
-    //     }
-    //     //console.log(scheduleTask);
-    // };
-  
-    // createDailyTaskUnevenly = (
-    //     iterationsAfterSeconds: number,
-    //     cronTab
-    // ) => {
-    //     const secondsPerDay = 3600 * 24; //only changed
-    //     const startDate = cronTab.StartDate;
-  
-    //     const endDate = cronTab.EndDate;
-    //     const frequency = cronTab.Frequency;
-    //     const difference =
-    //     secondsPerDay - Math.round(secondsPerDay / frequency) * (frequency - 1);
-    //     const scheduleTask = new Array<Date>();
-    //     let nextDate = this.resetStartDate(cronTab);
-    //     let count = 0;
-    //     while (endDate.getTime() >= nextDate.getTime()) {
-    //         if (nextDate.getTime() > startDate.getTime()) {
-    //             scheduleTask.push(new Date(nextDate));
-    //         }
-    //         const temp: Date = new Date(nextDate);
-    //         if (count === frequency - 1) {
-    //             temp.setTime(temp.getTime() + difference * 1000);
-    //             count = 0;
-    //         } else {
-    //             temp.setTime(
-    //                 temp.getTime() + Math.round(iterationsAfterSeconds) * 1000
-    //             );
-    //         }
-    //         count++;
-    //         nextDate = new Date(temp);
-    //     }
-    //     //console.log(scheduleTask);
-    // };
-
-    /////////////////MONTHLY/////////////////////
-    //completely different -leap year checking remaining
     public createDefaultMonthlyScheduleTask = async (cronTab:CronObject) => {
         const scheduleTask = new Array<Date>();
         const startDate = cronTab.StartDate;
@@ -405,7 +274,6 @@ export class CronObjectSchedule {
                 nextDate = new Date(temp.toISOString());
             }
         }
-        //console.log(scheduleTask);
         return scheduleTask;
     };
   
@@ -417,77 +285,8 @@ export class CronObjectSchedule {
         }
     };
 
-    // createMonthlyScheduleTask = (cronTab) => {
-    //     const iterationsAfterSeconds = this.getIterationsAfterSeconds(cronTab);
-    //     //console.log(iterationsAfterSeconds / (3600 * 24));
-    //     if (iterationsAfterSeconds % 2 === 0) {
-    //         this.createMonthlyTaskEvenly(iterationsAfterSeconds, cronTab);
-    //     } else {
-    //         this.createMonthlyTaskUnevenly(
-    //             Math.round(iterationsAfterSeconds),
-    //             cronTab
-    //         );
-    //     }
-    // };
-  
-    //No change
-    // createMonthlyTaskEvenly = (
-    //     iterationsAfterSeconds: number,
-    //     cronTab
-    // ) => {
-    //     const scheduleTask = new Array<Date>();
-    //     const startDate = cronTab.StartDate;
-    //     //let currentMonth = cronTab.StartDate.getUTCMonth();
-    //     const endDate = cronTab.EndDate;
-    //     let nextDate = this.resetStartDate(cronTab);
-    //     while (endDate.getTime() >= nextDate.getTime()) {
-    //         if (nextDate.getTime() > startDate.getTime()) {
-    //             scheduleTask.push(new Date(nextDate));
-    //         }
-    //         const temp: Date = nextDate;
-    //         temp.setUTCSeconds(nextDate.getUTCSeconds() + iterationsAfterSeconds);
-    //         nextDate = temp;
-    //     }
-    //     //console.log(scheduleTask);
-    // };
-  
-    // createMonthlyTaskUnevenly = (
-    //     iterationsAfterSeconds: number,
-    //     cronTab
-    // ) => {
-    //     const secondsPerMonth =
-    //     3600 * 24 * this.monthLength[cronTab.StartDate.getUTCMonth()]; //only changed
-    //     const startDate = cronTab.StartDate;
-  
-    //     const endDate = cronTab.EndDate;
-    //     const frequency = cronTab.Frequency;
-    //     const difference =
-    //     secondsPerMonth -
-    //     Math.round(secondsPerMonth / frequency) * (frequency - 1);
-    //     const scheduleTask = new Array<Date>();
-    //     let nextDate = this.resetStartDate(cronTab);
-    //     let count = 0;
-    //     while (endDate.getTime() >= nextDate.getTime()) {
-    //         if (nextDate.getTime() > startDate.getTime()) {
-    //             scheduleTask.push(new Date(nextDate));
-    //         }
-    //         const temp: Date = new Date(nextDate);
-    //         if (count === frequency - 1) {
-    //             temp.setTime(temp.getTime() + difference * 1000);
-    //             count = 0;
-    //         } else {
-    //             temp.setTime(
-    //                 temp.getTime() + Math.round(iterationsAfterSeconds) * 1000
-    //             );
-    //         }
-    //         count++;
-    //         nextDate = new Date(temp);
-    //     }
-    //     //console.log(scheduleTask);
-    // };
-
-    isLeapYear = (year: number): boolean => {
-        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-    };
+isLeapYear = (year: number): boolean => {
+    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+};
 
 }

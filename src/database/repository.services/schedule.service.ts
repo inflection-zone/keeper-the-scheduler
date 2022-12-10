@@ -55,6 +55,22 @@ export class ScheduleService {
         }
     }
 
+    getCronObjectScheduleById = async (id) => {
+        try {
+            //const record = await this.prisma.schedule.findUnique({
+            const record = await this.prisma.schedule.findFirst({
+                where : {
+                    id        : id,
+                    CronRegEx : null,
+                    DeletedAt : null
+                },
+            });
+            return record;
+        } catch (error) {
+            ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve schedule!', error);
+        }
+    }
+    
     // exists = async (id): Promise < boolean > => {
     //     try {
     //         const record = await this.Client.findByPk(id);

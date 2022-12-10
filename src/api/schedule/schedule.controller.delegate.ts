@@ -44,18 +44,44 @@ export class ScheduleControllerDelegate {
         var createModel: Prisma.ScheduleCreateInput = this.getCreateModel(requestBody);
         const record = await this._service.createByUsingCronObject(createModel);
         const cronTab : CronObject = await this.convertToCronObject(record);
-        const scheduleDates = await this._cronSchedule.createScheuleTasks(cronTab);
-        var createManyModel : ScheduleTaskModel[] = this.getCreateManyModel(scheduleDates,record);
-        // await this._service.createScheduleTaskByUsingCronObject(createManyModel);
-        createManyModel.forEach(async schedule=>{
-            await this._service.createScheduleTaskByUsingCronObject(schedule);
-        });
+        
+        if (this.isScheduleValidForCurrentMonth(cronTab)){
+            const scheduleDates = await this._cronSchedule.createScheuleTasks(cronTab);
+            var createManyModel : ScheduleTaskModel[] = this.getCreateManyModel(scheduleDates,record);
+            if (createManyModel.length > 0){
+                createManyModel.forEach(async schedule=>{
+                    await this._service.createScheduleTaskByUsingCronObject(schedule);
+                });
+            }
+        }
+        
         if (record === null) {
             throw new ApiError('Unable to create Schedule!', 400);
         }
+        
         return this.getEnrichedDto(record);
     };
 
+    isScheduleValidForCurrentMonth = (cronTab:CronObject) : boolean =>{
+        const todayDate = new Date();
+        const lastDateOfMonth = new Date();
+        lastDateOfMonth.setUTCMonth(todayDate.getUTCMonth() + 1);
+        lastDateOfMonth.setUTCDate(1);
+        lastDateOfMonth.setUTCHours(0);
+        lastDateOfMonth.setUTCMinutes(0);
+        lastDateOfMonth.setUTCSeconds(0);
+        lastDateOfMonth.setUTCMilliseconds(0);
+        const scheduleStartDate = cronTab.StartDate;
+        if (scheduleStartDate.getTime() >= todayDate.getTime()
+        && scheduleStartDate.getTime() < lastDateOfMonth.getTime()){
+            if (cronTab.EndDate.getTime() >= lastDateOfMonth.getTime()){
+                cronTab.EndDate = lastDateOfMonth;
+                return true;
+            }
+        }
+        return false;
+
+    }
     // getAllFaculty = async () => {
     //     //await validator.validateCreateRequest(requestBody);
     //     //var createModel: StudentCreateModel = this.getCreateModel(requestBody);

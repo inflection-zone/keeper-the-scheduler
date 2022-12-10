@@ -56,8 +56,10 @@ export default class Application {
             await this._router.init();
             //const seeder = new Seeder();
             //await seeder.seed();
+
             // var service = MonthlyTaskService.getInstance();
             // await service.createMonthlyTask();
+            
             //await Scheduler.instance().schedule();
         }
         catch (error) {
