@@ -1,0 +1,182 @@
+{
+	"info": {
+		"_postman_id": "32593834-0416-499f-b891-3f88ac2af3ea",
+		"name": "scheduler-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22334730"
+	},
+	"item": [
+		{
+			"name": "scheduler",
+			"item": [
+				{
+					"name": "Create Scheduler using Cron Object",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyTmFtZSI6IkRhdHRhdHJheWEgTiBMb25kaGUiLCJpYXQiOjE2NjU5NDQwNTF9.aHvayjqdfUXsI5NZAaNk__VVvWMAroHLH-eIZ5N8wTI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ScheduleName\":\"111111\",\r\n    \"ScheduleType\":\"DAILY\",\r\n    \"Frequency\":60,\r\n    \"Minutes\": 10,\r\n    \"Hours\": 13,\r\n    \"DayOfMonth\": 15,\r\n     \"Month\": 5,\r\n    \"DayOfWeek\": 5,\r\n    \"StartDate\":\"2023-01-01T10:00:00.000Z\",\r\n    \"EndDate\":\"2023-01-01T11:00:00.000Z\",\r\n    \"HookUri\":\"https://www.prisma.io/docs/reference/api-reference/11111\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7272/api/v1/scheduler/cronobject",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7272",
+							"path": [
+								"api",
+								"v1",
+								"scheduler",
+								"cronobject"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Scheduler using Cron Expression",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyTmFtZSI6IkRhdHRhdHJheWEgTiBMb25kaGUiLCJpYXQiOjE2NjU5NDQwNTF9.aHvayjqdfUXsI5NZAaNk__VVvWMAroHLH-eIZ5N8wTI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ScheduleName\":\"Schedule 01\",\r\n    \"StartDate\":\"2022-12-24T18:30:00.000Z\",\r\n    \"EndDate\":\"2023-12-05T18:30:00.000Z\",\r\n    \"CronRegEx\":\"15 11 * * *\",\r\n     \"HookUri\":\"https://www.prisma.io/docs/reference/api-reference/11111\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7272/api/v1/scheduler/cronexpr",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7272",
+							"path": [
+								"api",
+								"v1",
+								"scheduler",
+								"cronexpr"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get schedule by Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyTmFtZSI6IkRhdHRhdHJheWEgTiBMb25kaGUiLCJpYXQiOjE2NjU5NDQwNTF9.aHvayjqdfUXsI5NZAaNk__VVvWMAroHLH-eIZ5N8wTI",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:7272/api/v1/scheduler/32117d90-1221-4934-a68b-54cfb470329",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7272",
+							"path": [
+								"api",
+								"v1",
+								"scheduler",
+								"32117d90-1221-4934-a68b-54cfb470329"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update schedule by Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyTmFtZSI6IkRhdHRhdHJheWEgTiBMb25kaGUiLCJpYXQiOjE2NjU5NDQwNTF9.aHvayjqdfUXsI5NZAaNk__VVvWMAroHLH-eIZ5N8wTI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"SchedulerName\":\"Clean up Activity1\",\r\n    \"SchedulerType\":\"WEEKLY\",\r\n    \"Frequency\":1,\r\n    \"Minutes\":2,\r\n    \"Hours\":2,\r\n    \"DayOfMonth\":3,\r\n    \"Month\":5,\r\n    \"DayOfWeek\":3,\r\n    \"StartDate\":\"2022-11-22T00:00:00.000Z\",\r\n    \"EndDate\":\"2022-11-22T12:00:00.000Z\",\r\n    \"HookUri\":\"https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#enum\",\r\n    \"CronRegEx\":\"* * * * *\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7272/api/v1/scheduler/32117d90-1221-4934-a68b-54cfb470329",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7272",
+							"path": [
+								"api",
+								"v1",
+								"scheduler",
+								"32117d90-1221-4934-a68b-54cfb470329"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete schedule by Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyTmFtZSI6IkRhdHRhdHJheWEgTiBMb25kaGUiLCJpYXQiOjE2NjU5NDQwNTF9.aHvayjqdfUXsI5NZAaNk__VVvWMAroHLH-eIZ5N8wTI",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:7272/api/v1/scheduler/0fb564a0-e15f-4a1a-8dfa-60d581cb6158",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7272",
+							"path": [
+								"api",
+								"v1",
+								"scheduler",
+								"0fb564a0-e15f-4a1a-8dfa-60d581cb6158"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
