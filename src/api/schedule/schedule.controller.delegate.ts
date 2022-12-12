@@ -81,17 +81,7 @@ export class ScheduleControllerDelegate {
         }
         return false;
     }
-    // getAllFaculty = async () => {
-    //     //await validator.validateCreateRequest(requestBody);
-    //     //var createModel: StudentCreateModel = this.getCreateModel(requestBody);
-    //     const record = await this._service.prisma.facultyInfo.findMany();
-    //     if (record === null) {
-    //         throw new ApiError('Unable to retrived Faculty information!', 400);
-    //     }
-    //     //return this.getEnrichedDto(record);
-    //     return record;
-    // };
-
+    
     getById = async (id: uuid) => {
         const record = await this._scheduleService.getById(id);
         if (record === null) {
@@ -117,15 +107,7 @@ export class ScheduleControllerDelegate {
         };
         return cronObject;
     }
-    // search = async (query: any) => {
-    //     await validator.validateSearchRequest(query);
-    //     var filters: ClientSearchFilters = this.getSearchFilters(query);
-    //     var searchResults: ClientSearchResults = await this._service.search(filters);
-    //     var items = searchResults.Items.map(x => this.getSearchDto(x));
-    //     searchResults.Items = items;
-    //     return searchResults;
-    // }
-
+    
     update = async (id: uuid, requestBody: any) => {
         await validator.validateUpdateRequest(requestBody);
         const record =  await this._scheduleService.getById(id);
@@ -150,26 +132,6 @@ export class ScheduleControllerDelegate {
             Deleted : deletedSchedule
         };
     }
-
-    // ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    // //#region Privates
-
-    // getSearchFilters = (query) => {
-
-    //     var filters = {};
-
-    //     var clientName = query.clientName ? query.clientName : null;
-    //     if (clientName != null) {
-    //         filters['ClientName'] = clientName;
-    //     }
-    //     var clientCode = query.clientCode ? query.clientCode : null;
-    //     if (clientCode != null) {
-    //         filters['ClientCode'] = clientCode;
-    //     }
-
-    //     return filters;
-    // }
 
     getUpdateModel = (requestBody): Prisma.ScheduleUpdateInput => {
 
@@ -282,20 +244,6 @@ export class ScheduleControllerDelegate {
 
         };
     }
-
-    // getSearchDto = (record) => {
-    //     if (record == null) {
-    //         return null;
-    //     }
-    //     return {
-    //         id: record.id,
-    //         ClientName: record.ClientName,
-    //         ClientCode: record.ClientCode,
-    //         Phone: record.Phone,
-    //         Email: record.Email
-    //     };
-    // }
-
     //#endregion
 
 }
