@@ -1,18 +1,11 @@
 import {
     ErrorHandler
 } from '../../common/error.handler';
-// import {
-//     SchedulerCreateModel
-// } from "../../domain.types/scheduler.domain.type";
 import { Prisma } from '@prisma/client';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
-//import obj from 'uuid-apikey';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-//var parser = require('cron-parser');
 import { Logger } from '../../common/logger';
 import parser from 'cron-parser';
 import { PrismaClientInit } from '../../startup/prisma.client.init';
-//import { ScheduleTaskModel } from '../../domain.types/scheduler.domain.type';
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 export class ScheduleService {
@@ -55,7 +48,7 @@ export class ScheduleService {
         }
     }
 
-    getCronObjectSchedule = async (start:Date, end:Date) => {
+    getSchedules = async (start:Date, end:Date) => {
         try {
             //const record = await this.prisma.schedule.findUnique({
             const record = await this.prisma.schedule.findMany({
@@ -74,7 +67,6 @@ export class ScheduleService {
                             }
                         ]
                     },
-
                     {
                         AND : [
                             {
@@ -89,7 +81,6 @@ export class ScheduleService {
                             }
                         ]
                     }
-                        
                     ],
                     CronRegEx : null,
                     DeletedAt : null
@@ -261,51 +252,49 @@ export class ScheduleService {
         } catch (error) {
             ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
         }
-    };
+    }
     
     createByUsingCronObject = async (createModel: Prisma.ScheduleCreateInput) => {
         try {
             var record = await this.prisma.schedule.create({
                 data : createModel
             });
-            const schedule = await this.prisma.schedule.findUnique({
+            return await this.prisma.schedule.findUnique({
                 where : {
                     id : record.id
                 }
             });
-            await this.createTaskByUsingCronExpression(schedule);
-            return schedule;
-        } catch (error) {
-            ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
-        }
-    };
-
-    createScheduleTaskByUsingCronObject =async (createModel)=>{
-        try {
-            await this.prisma.scheduleTask.create({
-                data : {
-                    TriggerTime : createModel.TriggerTime.toISOString(),
-                    HookUri     : createModel.HookUri,
-                    Retries     : createModel.Retries,
-                    Status      : createModel.Status,
-                    Schedule    : {
-                        connect : {
-                            id : createModel.ScheduleId
-                        }
-                    }
-                }
-            });
-            // const schedule = await this.prisma.schedule.findUnique({
-            //     where : {
-            //         id : record.id
-            //     }
-            // });
-            // await this.createTaskByUsingCronExpression(schedule);
-            // return schedule;
         } catch (error) {
             ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
         }
     }
+
+    // createScheduleTaskByUsingCronObject =async (createModel)=>{
+    //     try {
+    //         await this.prisma.scheduleTask.create({
+    //             data : {
+    //                 TriggerTime : createModel.TriggerTime.toISOString(),
+    //                 HookUri     : createModel.HookUri,
+    //                 Retries     : createModel.Retries,
+    //                 Status      : createModel.Status,
+    //                 Schedule    : {
+    //                     connect : {
+    //                         id : createModel.ScheduleId
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //         // const schedule = await this.prisma.schedule.findUnique({
+    //         //     where : {
+    //         //         id : record.id
+    //         //     }
+    //         // });
+    //         // await this.createTaskByUsingCronExpression(schedule);
+    //         // return schedule;
+    //     } catch (error) {
+    //         ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
+    //     }
+    // }
 
     createTaskByUsingCronExpression = async (schedule)=>{
         const currentDate = new Date();
@@ -347,7 +336,6 @@ export class ScheduleService {
                         break;
                     }
                 } while (nextDate.done !== true);
-            
             } catch (error) {
                 Logger.instance().log('Invalid Cron Expression :' + error.message);
             }

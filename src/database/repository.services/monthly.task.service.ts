@@ -12,9 +12,7 @@ export class MonthlyTaskService{
 
     public static instance: MonthlyTaskService=null;
 
-    private constructor(){
-        
-    }
+    private constructor(){}
 
     public static getInstance(): MonthlyTaskService{
         return this.instance || (this.instance = new this());

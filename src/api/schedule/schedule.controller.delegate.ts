@@ -1,4 +1,5 @@
 import { ScheduleService } from "../../database/repository.services/schedule.service";
+import { ScheduleTaskService } from "../../database/repository.services/schedule.task.service";
 import {
     ErrorHandler,
 } from '../../common/error.handler';
@@ -18,49 +19,48 @@ export class ScheduleControllerDelegate {
 
     //#region member variables and constructors
 
-    _service: ScheduleService = null;
+    _scheduleService: ScheduleService = null;
+
+    _scheduleTaskService: ScheduleTaskService = null;
 
     _cronSchedule: CronObjectSchedule = null;
 
     constructor() {
-        this._service = new ScheduleService();
+        this._scheduleService = new ScheduleService();
         this._cronSchedule = new CronObjectSchedule();
+        this._scheduleTaskService = new ScheduleTaskService();
     }
 
     //#endregion
-
     createByUsingCronExpression = async (requestBody: any) => {
         await validator.validateCronExprCreateRequest(requestBody);
         var createModel: Prisma.ScheduleCreateInput = this.getCreateModel(requestBody);
-        const record = await this._service.createByUsingCronExpression(createModel);
+        const record = await this._scheduleService.createByUsingCronExpression(createModel);
         if (record === null) {
             throw new ApiError('Unable to create Schedule!', 400);
         }
         return this.getEnrichedDto(record);
-    };
+    }
 
     createByUsingCronObject = async (requestBody: any) => {
         await validator.validateCronObjectCreateRequest(requestBody);
         var createModel: Prisma.ScheduleCreateInput = this.getCreateModel(requestBody);
-        const record = await this._service.createByUsingCronObject(createModel);
-        const cronTab : CronObject = await this.convertToCronObject(record);
-        
+        const record = await this._scheduleService.createByUsingCronObject(createModel);
+        const cronTab : CronObject = await this.getCronObject(record);
         if (this.isScheduleValidForCurrentMonth(cronTab)){
             const scheduleDates = await this._cronSchedule.createScheuleTasks(cronTab);
             var createManyModel : ScheduleTaskModel[] = this.getCreateManyModel(scheduleDates,record);
             if (createManyModel.length > 0){
                 createManyModel.forEach(async schedule=>{
-                    await this._service.createScheduleTaskByUsingCronObject(schedule);
+                    await this._scheduleTaskService.createByUsingCronObject(schedule);
                 });
             }
         }
-        
         if (record === null) {
             throw new ApiError('Unable to create Schedule!', 400);
         }
-        
         return this.getEnrichedDto(record);
-    };
+    }
 
     isScheduleValidForCurrentMonth = (cronTab:CronObject) : boolean =>{
         const todayDate = new Date();
@@ -80,7 +80,6 @@ export class ScheduleControllerDelegate {
             }
         }
         return false;
-
     }
     // getAllFaculty = async () => {
     //     //await validator.validateCreateRequest(requestBody);
@@ -94,14 +93,14 @@ export class ScheduleControllerDelegate {
     // };
 
     getById = async (id: uuid) => {
-        const record = await this._service.getById(id);
+        const record = await this._scheduleService.getById(id);
         if (record === null) {
             ErrorHandler.throwNotFoundError('Schedule with id ' + id.toString() + ' cannot be found!');
         }
         return this.getEnrichedDto(record);
     }
 
-    convertToCronObject = async (record):Promise<CronObject> => {
+    getCronObject = async (record):Promise<CronObject> => {
         const cronObject:CronObject = {
             id            : record.id,
             SchedulerName : record.SchedulerName,
@@ -129,12 +128,12 @@ export class ScheduleControllerDelegate {
 
     update = async (id: uuid, requestBody: any) => {
         await validator.validateUpdateRequest(requestBody);
-        const record =  await this._service.getById(id);
+        const record =  await this._scheduleService.getById(id);
         if (record === null) {
             ErrorHandler.throwNotFoundError('Schedule with id ' + id.toString() + ' cannot be found!');
         }
         const updateModel: Prisma.ScheduleUpdateInput = this.getUpdateModel(requestBody);
-        const updated = await this._service.update(id, updateModel);
+        const updated = await this._scheduleService.update(id, updateModel);
         if (updated == null) {
             throw new ApiError('Unable to update Schedule!', 400);
         }
@@ -142,11 +141,11 @@ export class ScheduleControllerDelegate {
     }
 
     delete = async (id: uuid) => {
-        const record = await this._service.getById(id);
+        const record = await this._scheduleService.getById(id);
         if (record == null) {
             ErrorHandler.throwNotFoundError('Schedule with id ' + id.toString() + ' cannot be found!');
         }
-        const deletedSchedule = await this._service.delete(id);
+        const deletedSchedule = await this._scheduleService.delete(id);
         return {
             Deleted : deletedSchedule
         };
@@ -242,11 +241,10 @@ export class ScheduleControllerDelegate {
             CronRegEx    : requestBody.CronRegEx ? requestBody.CronRegEx : null,
             DeletedAt    : requestBody.DeletedAt ? requestBody.DeletedAt : null,
         };
-    };
+    }
 
     getCreateManyModel=(scheduleDates:Date[],record):ScheduleTaskModel[]=>{
         const createManymodel :ScheduleTaskModel[] = [];
-                
         for (const date of scheduleDates) {
             const model = <ScheduleTaskModel>{ };
             model.TriggerTime = new Date(date.toISOString()),
@@ -256,9 +254,8 @@ export class ScheduleControllerDelegate {
             model.ScheduleId = record.id;
             createManymodel.push(model);
         }
-
         return createManymodel;
-    };
+    }
 
     getEnrichedDto = (record) => {
         if (record == null) {
@@ -284,7 +281,7 @@ export class ScheduleControllerDelegate {
             DeletedAt    : record.DeletedAt
 
         };
-    };
+    }
 
     // getSearchDto = (record) => {
     //     if (record == null) {

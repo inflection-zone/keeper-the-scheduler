@@ -1,37 +1,38 @@
 import { Month, SchedulerCreateModel, CronObject, ScheduleTaskModel } from '../../domain.types/scheduler.domain.type';
+import { ScheduleTaskService } from './schedule.task.service';
 import { ScheduleService } from './schedule.service';
 import { CronObjectSchedule } from '../../common/cron.object.schedule';
 //import { ScheduleTaskModel } from '../../domain.types/scheduler.domain.type';
 
 export class MonthlyCronObjectTask{
 
-    _service: ScheduleService;
+    _scheduleService: ScheduleService=null;
+
+    _scheduleTaskService :ScheduleTaskService=null;
 
     _cronSchedule: CronObjectSchedule = null;
 
     constructor(){
-        this._service = new ScheduleService();
+        this._scheduleTaskService = new ScheduleTaskService();
+        this._scheduleService = new ScheduleService();
         this._cronSchedule = new CronObjectSchedule();
     }
 
-    getSchedule = async ()=> {
+    createScheduleTaskForNextMonth = async ()=> {
         const month = this.getNextMonth();
-        const records = this._service.getCronObjectSchedule(month.Start,month.End);
-
+        const records = this._scheduleService.getSchedules(month.Start,month.End);
         (await records).forEach(async (schedule)=>{
             schedule.StartDate = schedule.StartDate < month.Start ? month.Start : schedule.StartDate;
             schedule.EndDate = schedule.EndDate < month.End ? schedule.EndDate : month.End;
             var createModel : CronObject  = this.getCronObject(schedule);
             const scheduleDates = await this._cronSchedule.createScheuleTasks(createModel);
-           
             var createManyModel : ScheduleTaskModel[] = this.getCreateManyModel(scheduleDates,schedule);
             if (createManyModel.length > 0){
                 createManyModel.forEach(async scheduleTask=>{
-                    await this._service.createScheduleTaskByUsingCronObject(scheduleTask);
+                    await this._scheduleTaskService.createByUsingCronObject(scheduleTask);
                 });
             }
         });
-        
     }
 
     getNextMonth = () : Month =>{
@@ -49,9 +50,7 @@ export class MonthlyCronObjectTask{
         lastDateOfMonth.setUTCMinutes(0);
         lastDateOfMonth.setUTCSeconds(0);
         lastDateOfMonth.setUTCMilliseconds(0);
-        
         return { Start: firstDateOfMonth,End: lastDateOfMonth };
-
     }
 
     getCronObject = (CronOjectModel: SchedulerCreateModel) : CronObject=>{
@@ -73,7 +72,6 @@ export class MonthlyCronObjectTask{
 
     getCreateManyModel=(scheduleDates:Date[],record):ScheduleTaskModel[]=>{
         const createManymodel :ScheduleTaskModel[] = [];
-                
         for (const date of scheduleDates) {
             const model = <ScheduleTaskModel>{ };
             model.TriggerTime = new Date(date.toISOString()),
@@ -83,7 +81,6 @@ export class MonthlyCronObjectTask{
             model.ScheduleId = record.id;
             createManymodel.push(model);
         }
-
         return createManymodel;
     };
 

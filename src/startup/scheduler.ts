@@ -60,7 +60,7 @@ export class Scheduler {
             Logger.instance().log('Running scheduled jobs: Monthly task creation using Cron Object');
             (async () => {
                 var service = new MonthlyCronObjectTask();
-                await service.getSchedule();
+                await service.createScheduleTaskForNextMonth();
             })();
         });
     };

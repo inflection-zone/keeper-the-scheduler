@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 //import cors from 'cors';
 import express from 'express';
 import fileUpload from 'express-fileupload';
@@ -8,13 +7,13 @@ import { Router } from './startup/router';
 import { Logger } from './common/logger';
 import { ConfigurationManager } from "./config/configuration.manager";
 import { Loader } from './startup/loader';
-import { Scheduler } from './startup/scheduler';
+//import { Scheduler } from './startup/scheduler';
 import { DatabaseModelManager } from './database/database.model.manager';
 import * as db from './database/database.connector';
 import { DbClient } from './database/db.client';
-import { Seeder } from './startup/seeder';
-import { MonthlyTaskService } from './database/repository.services/monthly.task.service';
-import { Prisma, PrismaClient } from '@prisma/client';
+//import { Seeder } from './startup/seeder';
+//import { MonthlyTaskService } from './database/repository.services/monthly.task.service';
+//import { Prisma, PrismaClient } from '@prisma/client';
 import { PrismaClientInit } from '../src/startup/prisma.client.init';
 import { MonthlyCronObjectTask } from '../src/database/repository.services/monthly.cron.object.service';
 
@@ -61,8 +60,8 @@ export default class Application {
             // var service = MonthlyTaskService.getInstance();
             // await service.createMonthlyTask();
             
-            // var service = new MonthlyCronObjectTask();
-            // console.log(await service.getSchedule());
+            var service = new MonthlyCronObjectTask();
+            await service.createScheduleTaskForNextMonth();
             //await Scheduler.instance().schedule();
         }
         catch (error) {
