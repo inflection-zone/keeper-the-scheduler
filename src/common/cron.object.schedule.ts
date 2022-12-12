@@ -129,6 +129,13 @@ export class CronObjectSchedule {
             date.setUTCHours(0);
             date.setUTCDate(1);
         }
+        if (cronTab.ScheduleType === 'WEEKLY') {
+            const weekDayNumber = date.getUTCDay();
+            for (let i = weekDayNumber; i > 0; i--) {
+                date.setUTCDate(date.getUTCDate() - 1);
+            }
+            date.setUTCHours(0);
+        }
         return date;
     }
 
@@ -195,6 +202,9 @@ export class CronObjectSchedule {
                 this.monthLength[1] = this.isLeapYear(cronTab.StartDate.getUTCFullYear()) ? 29 : 28;
             }
             totalSeconds = 3600 * 24 * this.monthLength[cronTab.StartDate.getUTCMonth()];
+        }
+        if (cronTab.ScheduleType === 'WEEKLY') {
+            totalSeconds = 3600 * 24 * 7;
         }
         const startDate = cronTab.StartDate;
         const endDate = cronTab.EndDate;
