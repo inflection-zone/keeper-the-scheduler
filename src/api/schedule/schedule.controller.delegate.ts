@@ -12,6 +12,7 @@ import { ScheduleValidator as validator } from './schedule.validator';
 import { Prisma } from '@prisma/client';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
 import { CronObject, ScheduleTaskModel } from '../../domain.types/scheduler.domain.type';
+import { MonthlyTaskService } from '../../database/repository.services/monthly.task.service';
 //import { number } from "joi";
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,19 @@ export class ScheduleControllerDelegate {
         await validator.validateCronExprCreateRequest(requestBody);
         var createModel: Prisma.ScheduleCreateInput = this.getCreateModel(requestBody);
         const record = await this._scheduleService.createByUsingCronExpression(createModel);
+
+        const cronTab : CronObject = await this.getCronObject(record);
+        if (this.isScheduleValidForCurrentMonth(cronTab)){
+            //const scheduleDates = await this._cronSchedule.createScheuleTasks(cronTab);
+            const scheduleDates = await MonthlyTaskService.getInstance().createScheuleTasks(cronTab);
+            var createManyModel : ScheduleTaskModel[] = this.getCreateManyModel(scheduleDates,record);
+            if (createManyModel.length > 0){
+                createManyModel.forEach(async schedule=>{
+                    await this._scheduleTaskService.createByUsingCronObject(schedule);
+                });
+            }
+        }
+
         if (record === null) {
             throw new ApiError('Unable to create Schedule!', 400);
         }
@@ -104,6 +118,7 @@ export class ScheduleControllerDelegate {
             StartDate     : new Date(record.StartDate),
             EndDate       : new Date(record.EndDate),
             HookUri       : record.HookUri,
+            CronRegEx     : record.CronRegEx,
         };
         return cronObject;
     }

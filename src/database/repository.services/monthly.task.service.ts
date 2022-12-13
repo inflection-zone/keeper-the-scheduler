@@ -1,9 +1,9 @@
 //import { Prisma, PrismaClient } from '@prisma/client';
-import { GetNextMonthDate } from '../../domain.types/scheduler.domain.type';
+import { CronObject, GetNextMonthDate } from '../../domain.types/scheduler.domain.type';
 //var parser = require('cron-parser');
 import parser from "cron-parser";
 import { Logger } from '../../common/logger';
-import { ScheduleSelectModel } from '../../domain.types/scheduler.domain.type';
+//import { ScheduleSelectModel } from '../../domain.types/scheduler.domain.type';
 import { PrismaClientInit } from '../../startup/prisma.client.init';
 /////////////////////////////////////////////////////////////////////
 export class MonthlyTaskService{
@@ -27,7 +27,7 @@ export class MonthlyTaskService{
         const listOfSchedule = await this.extractSchedule(schedule);
         try {
             listOfSchedule.forEach(schedule =>{
-                this.generateTasks(schedule);
+                this.createScheuleTasks(schedule);
             });
         } catch (error){
             Logger.instance().log('Error in generating schedule tasks: ' + error.message);
@@ -50,17 +50,60 @@ export class MonthlyTaskService{
         return listOfSchedule;
     }
 
-    generateTasks =async(schedule:ScheduleSelectModel)=>{
-        const d = this.getNextMonthDetails();
-        const start = schedule.StartDate < d.firstDayOfNextMonth ? d.firstDayOfNextMonth : schedule.StartDate;
-        const end = schedule.EndDate > d.lastDayOfNextMonth ? d.lastDayOfNextMonth : schedule.EndDate;
-        Logger.instance().log('StartDate:' + start.toISOString() + ' EndDate:' + end.toISOString());
+    // createScheuleTasks =async(schedule:CronObject)=>{
+    //     // const d = this.getNextMonthDetails();
+    //     // const start = schedule.StartDate < d.firstDayOfNextMonth ? d.firstDayOfNextMonth : schedule.StartDate;
+    //     // const end = schedule.EndDate > d.lastDayOfNextMonth ? d.lastDayOfNextMonth : schedule.EndDate;
+    //     // Logger.instance().log('StartDate:' + start.toISOString() + ' EndDate:' + end.toISOString());
+    //     var options = {
+    //         currentDate : schedule.StartDate,
+    //         endDate     : schedule.EndDate,
+    //         iterator    : true,
+    //         tz          : 'UTC'
+    //     };
+    //     try {
+    //         var interval = parser.parseExpression(schedule.CronRegEx, options);
+    //         var nextDate = null;
+    //         do {
+    //             try {
+    //                 nextDate = interval.next();
+    //                 const date = new Date(nextDate.value.toString());
+    //                 await this.prisma.scheduleTask.create({
+    //                     data : {
+    //                         TriggerTime : date.toISOString(),
+    //                         HookUri     : schedule.HookUri,
+    //                         Retries     : 5,
+    //                         Status      : 'PENDING',
+    //                         Schedule    : {
+    //                             connect : {
+    //                                 id : schedule.id
+    //                             }
+    //                         }
+    //                     }
+    //                 });
+    //                 console.log(date.toISOString());
+    //             } catch (error) {
+    //                 // Logger.instance().log(`${schedule.CronRegEx} :
+    //                 // From ${start.toISOString()} To ${end.toISOString()} : NO SCHEDULE`);
+    //                 Logger.instance().log('Message :' + error.message);
+    //                 break;
+    //             }
+    //         } while (nextDate.done !== true);
+            
+    //     } catch (error) {
+    //         Logger.instance().log('Invalid Cron Expression :' + error.message);
+    //     }
+    
+    // }
+
+    createScheuleTasks = async(schedule:CronObject) =>{
         var options = {
-            currentDate : start,
-            endDate     : end,
+            currentDate : schedule.StartDate,
+            endDate     : schedule.EndDate,
             iterator    : true,
             tz          : 'UTC'
         };
+        const scheduleTask = new Array<Date>();
         try {
             var interval = parser.parseExpression(schedule.CronRegEx, options);
             var nextDate = null;
@@ -68,21 +111,23 @@ export class MonthlyTaskService{
                 try {
                     nextDate = interval.next();
                     const date = new Date(nextDate.value.toString());
-                    await this.prisma.scheduleTask.create({
-                        data : {
-                            TriggerTime : date.toISOString(),
-                            HookUri     : schedule.HookUri,
-                            Retries     : 5,
-                            Status      : 'PENDING',
-                            Schedule    : {
-                                connect : {
-                                    id : schedule.id
-                                }
-                            }
-                        }
-                    });
+                    scheduleTask.push(date);
+                    // await this.prisma.scheduleTask.create({
+                    //     data : {
+                    //         TriggerTime : date.toISOString(),
+                    //         HookUri     : schedule.HookUri,
+                    //         Retries     : 5,
+                    //         Status      : 'PENDING',
+                    //         Schedule    : {
+                    //             connect : {
+                    //                 id : schedule.id
+                    //             }
+                    //         }
+                    //     }
+                    // });
                 } catch (error) {
-                    Logger.instance().log(`${schedule.CronRegEx} : From ${start.toISOString()} To ${end.toISOString()} : NO SCHEDULE`);
+                    // Logger.instance().log(`${schedule.CronRegEx} :
+                    // From ${start.toISOString()} To ${end.toISOString()} : NO SCHEDULE`);
                     Logger.instance().log('Message :' + error.message);
                     break;
                 }
@@ -91,7 +136,7 @@ export class MonthlyTaskService{
         } catch (error) {
             Logger.instance().log('Invalid Cron Expression :' + error.message);
         }
-    
+        return scheduleTask;
     }
 
     getNextMonthDetails = ():GetNextMonthDate=>{

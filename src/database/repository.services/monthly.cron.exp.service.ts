@@ -1,26 +1,26 @@
 import { Month, SchedulerCreateModel, CronObject, ScheduleTaskModel } from '../../domain.types/scheduler.domain.type';
 import { ScheduleTaskService } from './schedule.task.service';
 import { ScheduleService } from './schedule.service';
-import { CronObjectSchedule } from '../../common/cron.object.schedule';
+import { MonthlyTaskService } from './monthly.task.service';
 //import { ScheduleTaskModel } from '../../domain.types/scheduler.domain.type';
 
-export class MonthlyCronObjectTask{
+export class MonthlyCronExpTask{
 
     _scheduleService: ScheduleService=null;
 
     _scheduleTaskService :ScheduleTaskService=null;
 
-    _cronSchedule: CronObjectSchedule = null;
+    _cronSchedule: MonthlyTaskService  = null;
 
     constructor(){
         this._scheduleTaskService = new ScheduleTaskService();
         this._scheduleService = new ScheduleService();
-        this._cronSchedule = new CronObjectSchedule();
+        this._cronSchedule = MonthlyTaskService.getInstance();
     }
 
     createScheduleTaskForNextMonth = async ()=> {
         const month = this.getNextMonth();
-        const records = this._scheduleService.getSchedulesForCronObj(month.Start,month.End);
+        const records = this._scheduleService.getSchedulesForCronExp(month.Start,month.End);
         (await records).forEach(async (schedule)=>{
             schedule.StartDate = schedule.StartDate < month.Start ? month.Start : schedule.StartDate;
             schedule.EndDate = schedule.EndDate < month.End ? schedule.EndDate : month.End;
@@ -30,6 +30,7 @@ export class MonthlyCronObjectTask{
             if (createManyModel.length > 0){
                 createManyModel.forEach(async scheduleTask=>{
                     await this._scheduleTaskService.createByUsingCronObject(scheduleTask);
+                    // console.log(scheduleTask.TriggerTime.toISOString());
                 });
             }
         });
@@ -67,6 +68,7 @@ export class MonthlyCronObjectTask{
             StartDate     : CronOjectModel.StartDate,
             EndDate       : CronOjectModel.EndDate,
             HookUri       : CronOjectModel.HookUri,
+            CronRegEx     : CronOjectModel.CronRegEx
         };
     }
 

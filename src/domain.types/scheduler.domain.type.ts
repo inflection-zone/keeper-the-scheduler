@@ -31,7 +31,7 @@ export interface GetNextMonthDate{
 
 export interface ScheduleSelectModel {
     id: string;
-    SchedulerName: string;
+    ScheduleName: string;
     Frequency?: number;
     Minutes?: number;
     Hours?: number;
@@ -60,6 +60,7 @@ export interface CronObject {
     StartDate: Date;
     EndDate: Date;
     HookUri: string;
+    CronRegEx?: string;
 }
 
 export interface Month {

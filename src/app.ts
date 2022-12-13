@@ -12,10 +12,11 @@ import { DatabaseModelManager } from './database/database.model.manager';
 import * as db from './database/database.connector';
 import { DbClient } from './database/db.client';
 //import { Seeder } from './startup/seeder';
-//import { MonthlyTaskService } from './database/repository.services/monthly.task.service';
+//import { MonthlyCronExpTask } from '../src/database/repository.services/monthly.cron.exp.service';
 //import { Prisma, PrismaClient } from '@prisma/client';
 import { PrismaClientInit } from '../src/startup/prisma.client.init';
-import { MonthlyCronObjectTask } from '../src/database/repository.services/monthly.cron.object.service';
+import { MonthlyCronExpTask } from './database/repository.services/monthly.cron.exp.service';
+//import { MonthlyCronObjectTask } from '../src/database/repository.services/monthly.cron.object.service';
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -57,11 +58,11 @@ export default class Application {
             //const seeder = new Seeder();
             //await seeder.seed();
 
-            // var service = MonthlyTaskService.getInstance();
-            // await service.createMonthlyTask();
-            
-            var service = new MonthlyCronObjectTask();
+            var service = new MonthlyCronExpTask();
             await service.createScheduleTaskForNextMonth();
+            
+            // var service = new MonthlyCronObjectTask();
+            // await service.createScheduleTaskForNextMonth();
             //await Scheduler.instance().schedule();
         }
         catch (error) {

@@ -3,8 +3,8 @@ import {
 } from '../../common/error.handler';
 import { Prisma } from '@prisma/client';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
-import { Logger } from '../../common/logger';
-import parser from 'cron-parser';
+// import { Logger } from '../../common/logger';
+// import parser from 'cron-parser';
 import { PrismaClientInit } from '../../startup/prisma.client.init';
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -48,9 +48,52 @@ export class ScheduleService {
         }
     }
 
-    getSchedules = async (start:Date, end:Date) => {
+    getSchedulesForCronExp = async (start:Date, end:Date) => {
         try {
             //const record = await this.prisma.schedule.findUnique({
+            const record = await this.prisma.schedule.findMany({
+                where : {
+                    OR : [{
+                        AND : [
+                            {
+                                StartDate : {
+                                    lt : start,
+                                }
+                            },
+                            {
+                                EndDate : {
+                                    gt : start,
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        AND : [
+                            {
+                                StartDate : {
+                                    gte : start,
+                                }
+                            },
+                            {
+                                StartDate : {
+                                    lt : end,
+                                }
+                            }
+                        ]
+                    }
+                    ],
+                    NOT       : [{ CronRegEx: null }],
+                    DeletedAt : null
+                },
+            });
+            return record;
+        } catch (error) {
+            ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve schedule!', error);
+        }
+    }
+
+    getSchedulesForCronObj = async (start:Date, end:Date) => {
+        try {
             const record = await this.prisma.schedule.findMany({
                 where : {
                     OR : [{
@@ -86,7 +129,6 @@ export class ScheduleService {
                     DeletedAt : null
                 },
             });
-            //console.log(record);
             return record;
         } catch (error) {
             ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve schedule!', error);
@@ -247,7 +289,7 @@ export class ScheduleService {
                     id : record.id
                 }
             });
-            await this.createTaskByUsingCronExpression(schedule);
+            //await this.createTaskByUsingCronExpression(schedule);
             return schedule;
         } catch (error) {
             ErrorHandler.throwDbAccessError('DB Error: Unable to create schdule!', error);
@@ -296,51 +338,52 @@ export class ScheduleService {
     //     }
     // }
 
-    createTaskByUsingCronExpression = async (schedule)=>{
-        const currentDate = new Date();
-        const scheduleDate = schedule.StartDate;
-        var firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-        var findEndDate = schedule.EndDate > lastDayOfCurrentMonth ? lastDayOfCurrentMonth : schedule.EndDate;
-        var options = {
-            currentDate : scheduleDate,
-            endDate     : findEndDate,
-            iterator    : true,
-            tz          : 'UTC'
-        //tz          : 'system'
-        };
-        if (scheduleDate >= firstDayOfCurrentMonth && scheduleDate <= lastDayOfCurrentMonth){
-            try {
-                var interval = parser.parseExpression(schedule.CronRegEx, options);
-                var nextDate = null;
-                do {
-                    try {
-                        nextDate = interval.next();
-                        const date = new Date(nextDate.value.toString());
-                        await this.prisma.scheduleTask.create({
-                            data : {
-                                TriggerTime : date.toISOString(),
-                                HookUri     : schedule.HookUri,
-                                Retries     : 5,
-                                Status      : 'PENDING',
-                                Schedule    : {
-                                    connect : {
-                                        id : schedule.id
-                                    }
-                                }
-                            }
-                        });
-                    } catch (error) {
-                        Logger.instance().log(`${schedule.CronRegEx} : From ${scheduleDate.toISOString()} To ${findEndDate.toISOString()} : NO SCHEDULE`);
-                        Logger.instance().log('Message :' + error.message);
-                        break;
-                    }
-                } while (nextDate.done !== true);
-            } catch (error) {
-                Logger.instance().log('Invalid Cron Expression :' + error.message);
-            }
-        }
-    }
+    // createTaskByUsingCronExpression = async (schedule)=>{
+    //     const currentDate = new Date();
+    //     const scheduleDate = schedule.StartDate;
+    //     var firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    //     var lastDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+    //     var findEndDate = schedule.EndDate > lastDayOfCurrentMonth ? lastDayOfCurrentMonth : schedule.EndDate;
+    //     var options = {
+    //         currentDate : scheduleDate,
+    //         endDate     : findEndDate,
+    //         iterator    : true,
+    //         tz          : 'UTC'
+    //     //tz          : 'system'
+    //     };
+    //     if (scheduleDate >= firstDayOfCurrentMonth && scheduleDate <= lastDayOfCurrentMonth){
+    //         try {
+    //             var interval = parser.parseExpression(schedule.CronRegEx, options);
+    //             var nextDate = null;
+    //             do {
+    //                 try {
+    //                     nextDate = interval.next();
+    //                     const date = new Date(nextDate.value.toString());
+    //                     await this.prisma.scheduleTask.create({
+    //                         data : {
+    //                             TriggerTime : date.toISOString(),
+    //                             HookUri     : schedule.HookUri,
+    //                             Retries     : 5,
+    //                             Status      : 'PENDING',
+    //                             Schedule    : {
+    //                                 connect : {
+    //                                     id : schedule.id
+    //                                 }
+    //                             }
+    //                         }
+    //                     });
+    //                 } catch (error) {
+    //                     Logger.instance().log(`${schedule.CronRegEx} :
+    // From ${scheduleDate.toISOString()} To ${findEndDate.toISOString()} : NO SCHEDULE`);
+    //                     Logger.instance().log('Message :' + error.message);
+    //                     break;
+    //                 }
+    //             } while (nextDate.done !== true);
+    //         } catch (error) {
+    //             Logger.instance().log('Invalid Cron Expression :' + error.message);
+    //         }
+    //     }
+    // }
 
 }
 
