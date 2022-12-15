@@ -7,7 +7,7 @@ import { Router } from './startup/router';
 import { Logger } from './common/logger';
 import { ConfigurationManager } from "./config/configuration.manager";
 import { Loader } from './startup/loader';
-//import { Scheduler } from './startup/scheduler';
+import { Scheduler } from './startup/scheduler';
 import { DatabaseModelManager } from './database/database.model.manager';
 import * as db from './database/database.connector';
 import { DbClient } from './database/db.client';
@@ -58,8 +58,8 @@ export default class Application {
             //const seeder = new Seeder();
             //await seeder.seed();
 
-            var service = new MonthlyCronExpTask();
-            await service.createScheduleTaskForNextMonth();
+            // var service = new MonthlyCronExpTask();
+            // await service.createScheduleTaskForNextMonth();
             
             // var service = new MonthlyCronObjectTask();
             // await service.createScheduleTaskForNextMonth();
